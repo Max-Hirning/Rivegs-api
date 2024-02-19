@@ -8,6 +8,7 @@ import {MailerModule} from '@nestjs-modules/mailer';
 import {UserModule} from './modules/user/user.module';
 import {AuthModule} from './modules/auth/auth.module';
 import {ImageModule} from './modules/image/image.module';
+import {CommonModule} from './modules/common/common.module';
 import {RecipeModule} from './modules/recipe/recipe.module';
 import {RecipeTypeModule} from './modules/recipe-type/recipe-type.module';
 
@@ -37,6 +38,7 @@ import {RecipeTypeModule} from './modules/recipe-type/recipe-type.module';
     ConfigModule.forRoot({envFilePath: '.env', isGlobal: true}),
     MongooseModule.forRoot(process.env.DB_URL, {dbName: 'BankDash'}),
     JwtModule.register({signOptions: {expiresIn: process.env.JWT_TOKEN_EXPIRES_IN}, secret: process.env.SECRET_KEY}),
+    CommonModule,
   ],
   providers: [AppService],
   controllers: [AppController],

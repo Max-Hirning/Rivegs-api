@@ -1,34 +1,32 @@
 import {AuthService} from './auth.service';
-import {CreateAuthDto} from './dto/create-auth.dto';
-import {UpdateAuthDto} from './dto/update-auth.dto';
-import {Controller, Get, Post, Body, Put, Param, Delete} from '@nestjs/common';
+import {SignInDto} from './dto/sign-in.dto';
+import {SignUpDto} from './dto/sign-up.dto';
+import {ISignInResponse} from './types/sign-in';
+import {EmailRequestDto} from './dto/email-request.dto';
+import {ResetPasswordDto} from './dto/reset-password.dto';
+import {Controller, Post, Body, Put} from '@nestjs/common';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto): string {
-    return this.authService.create(createAuthDto);
+  @Post('sign-up')
+  async signUp(@Body() signUpDto: SignUpDto): Promise<string> {
+    return this.authService.signUp(signUpDto);
   }
 
-  @Get()
-  findAll(): string {
-    return this.authService.findAll();
+  @Post('sign-in')
+  async signIn(@Body() signInDto: SignInDto): Promise<ISignInResponse> {
+    return this.authService.signIn(signInDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string): string {
-    return this.authService.findOne(+id);
+  @Post('email-request')
+  async emailRequest(@Body() emailRequestDto: EmailRequestDto): Promise<string> {
+    return this.authService.emailRequest(emailRequestDto);
   }
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto): string {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string): string {
-    return this.authService.remove(+id);
+  @Put('reset-password')
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto): Promise<string> {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 }

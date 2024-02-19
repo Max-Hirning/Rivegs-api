@@ -1,34 +1,38 @@
+import {IUser} from './types/user';
 import {UserService} from './user.service';
-import {CreateUserDto} from './dto/create-user.dto';
-import {UpdateUserDto} from './dto/update-user.dto';
-import {Controller, Get, Post, Body, Put, Param, Delete} from '@nestjs/common';
+import {CommonService} from '../common/common.service';
+import {UpdateProfileDto} from './dto/update-profile.dto';
+import {UpdateSecurityDto} from './dto/update-security.dto';
+import {Controller, Get, Body, Put, Param, Delete} from '@nestjs/common';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly commonService: CommonService
+  ) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto): string {
-    return this.userService.create(createUserDto);
-  }
-
-  @Get()
-  findAll(): string {
-    return this.userService.findAll();
+  @Delete(':id')
+  async remove(@Param('id') id: string): Promise<string> {
+    return this.userService.remove(id);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): string {
-    return this.userService.findOne(+id);
+  async findOne(@Param('id') id: string): Promise<IUser> {
+    const user = await this.commonService.findOneUser(id);
+    const userCopy = JSON.parse(JSON.stringify(user));
+    delete userCopy.password;
+    delete userCopy.__v;
+    return userCopy;
   }
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): string {
-    return this.userService.update(+id, updateUserDto);
+  @Put('profile/:id')
+  async updateProfile(@Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto): Promise<string> {
+    return this.userService.updateProfile(id, updateProfileDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string): string {
-    return this.userService.remove(+id);
+  @Put('security/:id')
+  async updateSecurity(@Param('id') id: string, @Body() updateSecurityDto: UpdateSecurityDto): Promise<string> {
+    return this.userService.updateSecurity(id, updateSecurityDto);
   }
 }
