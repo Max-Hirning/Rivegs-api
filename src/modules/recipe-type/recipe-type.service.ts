@@ -1,28 +1,91 @@
-import {Injectable} from '@nestjs/common';
+import mongoose, {Model} from 'mongoose';
+import {DBs} from 'src/configs/DBs';
+import {InjectModel} from '@nestjs/mongoose';
+import {IRecipeType} from './types/recipe-type';
+import {RecipeType} from './schemas/recipe-type.schema';
 import {CreateRecipeTypeDto} from './dto/create-recipe-type.dto';
 import {UpdateRecipeTypeDto} from './dto/update-recipe-type.dto';
+import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 
 @Injectable()
 export class RecipeTypeService {
-  create(createRecipeTypeDto: CreateRecipeTypeDto): string {
-    console.log(createRecipeTypeDto);
-    return 'This action adds a new recipeType';
+  constructor(@InjectModel(DBs.recipesTypes) private readonly recipeTypeModel: Model<RecipeType>) {}
+
+  async findAll(): Promise<IRecipeType[]> {
+    const recipeType = await this.recipeTypeModel.aggregate([
+      {
+        $lookup: {
+          as: 'image',
+          from: 'images',
+          foreignField: '_id',
+          localField: 'imageId',
+        }
+      },
+      {
+        $addFields: {
+          image: {$arrayElemAt: ['$image.url', 0]}
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          image: 1,
+        }
+      }
+    ]);
+    if(!recipeType || recipeType.length === 0) throw new HttpException('No recipe types', HttpStatus.NOT_FOUND);
+    return recipeType;
   }
 
-  findAll(): string {
-    return 'This action returns all recipeType';
+  async remove(id: string): Promise<string> {
+    await this.recipeTypeModel.deleteOne({_id: id});
+    return 'Recipe type was removed';
   }
 
-  findOne(id: number): string {
-    return `This action returns a #${id} recipeType`;
+  async findOne(id: string): Promise<IRecipeType> {
+    const [recipeType] = await this.recipeTypeModel.aggregate([
+      {
+        $match: {_id: new mongoose.Types.ObjectId(id)}
+      },
+      {
+        $lookup: {
+          as: 'image',
+          from: 'images',
+          foreignField: '_id',
+          localField: 'imageId',
+        }
+      },
+      {
+        $addFields: {
+          image: {$arrayElemAt: ['$image.url', 0]}
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          image: 1,
+          imageId: 1
+        }
+      }
+    ]);
+    if(!recipeType) throw new HttpException('No such recipe type', HttpStatus.NOT_FOUND);
+    return recipeType;
   }
 
-  update(id: number, updateRecipeTypeDto: UpdateRecipeTypeDto): string {
-    console.log(updateRecipeTypeDto);
-    return `This action updates a #${id} recipeType`;
+  async update(id: string, updateRecipeTypeDto: UpdateRecipeTypeDto): Promise<string> {
+    await this.recipeTypeModel.updateOne({_id: id}, {
+      title: updateRecipeTypeDto.title,
+    });
+    return 'Recipe type was updated';
   }
 
-  remove(id: number): string {
-    return `This action removes a #${id} recipeType`;
+  async create(createRecipeTypeDto: CreateRecipeTypeDto, imageId: string): Promise<string> {
+    await this.recipeTypeModel.create({
+      imageId, 
+      title: createRecipeTypeDto.title,
+    });
+    return 'Recipe type was created';
   }
 }

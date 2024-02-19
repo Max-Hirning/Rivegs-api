@@ -11,7 +11,7 @@ import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 export class AppService {
   constructor(
     private readonly jwtService: JwtService,
-    @InjectModel(DBs.users) private userModel: Model<User>,
+    @InjectModel(DBs.users) private userModel: Model<User>
   ) {}
 
   async confirmEmail(code: string): Promise<void> {
