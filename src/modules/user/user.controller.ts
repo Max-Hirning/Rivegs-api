@@ -1,9 +1,10 @@
 import {IUser} from './types/user';
 import {UserService} from './user.service';
+import {AuthGuard} from '../auth/guards/auth.guard';
 import {CommonService} from '../common/common.service';
 import {UpdateProfileDto} from './dto/update-profile.dto';
 import {UpdateSecurityDto} from './dto/update-security.dto';
-import {Controller, Get, Body, Put, Param, Delete} from '@nestjs/common';
+import {Controller, Get, Body, Put, Param, Delete, UseGuards} from '@nestjs/common';
 
 @Controller('user')
 export class UserController {
@@ -13,6 +14,7 @@ export class UserController {
   ) {}
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   async remove(@Param('id') id: string): Promise<string> {
     return this.userService.remove(id);
   }
@@ -27,11 +29,13 @@ export class UserController {
   }
 
   @Put('profile/:id')
+  @UseGuards(AuthGuard)
   async updateProfile(@Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto): Promise<string> {
     return this.userService.updateProfile(id, updateProfileDto);
   }
 
   @Put('security/:id')
+  @UseGuards(AuthGuard)
   async updateSecurity(@Param('id') id: string, @Body() updateSecurityDto: UpdateSecurityDto): Promise<string> {
     return this.userService.updateSecurity(id, updateSecurityDto);
   }

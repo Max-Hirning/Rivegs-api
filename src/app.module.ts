@@ -18,6 +18,7 @@ import {RecipeTypeModule} from './modules/recipe-type/recipe-type.module';
     AuthModule,
     ImageModule,
     RecipeModule,
+    CommonModule,
     RecipeTypeModule,
 
     MailerModule.forRoot({
@@ -38,7 +39,6 @@ import {RecipeTypeModule} from './modules/recipe-type/recipe-type.module';
     ConfigModule.forRoot({envFilePath: '.env', isGlobal: true}),
     MongooseModule.forRoot(process.env.DB_URL, {dbName: 'BankDash'}),
     JwtModule.register({signOptions: {expiresIn: process.env.JWT_TOKEN_EXPIRES_IN}, secret: process.env.SECRET_KEY}),
-    CommonModule,
   ],
   providers: [AppService],
   controllers: [AppController],
