@@ -30,6 +30,7 @@ export class UserService {
     await this.userModel.updateOne({_id: id}, {
       email: updateProfileDto.email,
       login: updateProfileDto.login,
+      __v: updateProfileDto.email ? 0 : 1,
       description: updateProfileDto.description,
     });
     return UserSuccessMessages.updateProfile;
