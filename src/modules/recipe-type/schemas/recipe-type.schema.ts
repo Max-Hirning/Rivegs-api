@@ -1,1 +1,14 @@
-export class RecipeType {}
+import mongoose, {Document} from 'mongoose';
+import {Image} from 'src/modules/image/schemas/image.schema';
+import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
+
+@Schema()
+export class RecipeType extends Document {
+  @Prop({required: true})
+    title: string;
+
+  @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'Image', required: true})
+    imageId: Image['_id'];
+}
+
+export const RecipeTypeSchema = SchemaFactory.createForClass(RecipeType);
