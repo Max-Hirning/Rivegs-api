@@ -6,9 +6,9 @@ import {InjectModel} from '@nestjs/mongoose';
 import {CommonService} from '../common/common.service';
 import {UpdateProfileDto} from './dto/update-profile.dto';
 import {UpdateSecurityDto} from './dto/update-security.dto';
-import {AuthErrorMessages} from 'src/configs/messages/auth';
 import {UserSuccessMessages} from 'src/configs/messages/user';
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
+import {AuthErrorMessages, AuthSuccessMessages} from 'src/configs/messages/auth';
 
 @Injectable()
 export class UserService {
@@ -25,7 +25,7 @@ export class UserService {
   async updateProfile(id: string, updateProfileDto: UpdateProfileDto): Promise<string> { // image
     const user = await this.commonService.findOneUser(id);
     if(updateProfileDto.email) {
-      await this.commonService.sendConfirmEmail(user.email, {email: user.email, _id: user._id, password: user.password});
+      await this.commonService.sendConfirmEmail(updateProfileDto.email, {email: updateProfileDto.email, _id: user._id, password: user.password});
     }
     await this.userModel.updateOne({_id: id}, {
       email: updateProfileDto.email,
@@ -33,16 +33,16 @@ export class UserService {
       __v: updateProfileDto.email ? 0 : 1,
       description: updateProfileDto.description,
     });
+    if(updateProfileDto.email) return AuthSuccessMessages.sentEmail;
     return UserSuccessMessages.updateProfile;
   }
 
   async updateSecurity(id: string, updateSecurityDto: UpdateSecurityDto): Promise<string> {
     const user = await this.commonService.findOneUser(id);
-    const isPassValid = bcrypt.compare(updateSecurityDto.oldPassword, user.password);
+    const isPassValid = bcrypt.compareSync(updateSecurityDto.oldPassword, user.password);
     if(!isPassValid) throw new HttpException(AuthErrorMessages.wrongPassword, HttpStatus.BAD_REQUEST);
-    await this.userModel.updateOne({_id: id}, {
-      password: updateSecurityDto.password,
-    });
+    const password = await bcrypt.hash(updateSecurityDto.password, 5);
+    await this.userModel.updateOne({_id: id}, {password});
     return UserSuccessMessages.updatePassword;
   }
 }

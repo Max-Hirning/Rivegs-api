@@ -57,7 +57,7 @@ export class AuthService {
       html: `
         <div>
           <h3>Please, do not reply to this letter</h3>
-          <a href="${emailRequestDto.url}?code=${code}">Update your security data</a>
+          <a href="${emailRequestDto.url}/?code=${code}">Update your security data</a>
         </div>
       `,
       to: user.email,
@@ -70,8 +70,7 @@ export class AuthService {
     const codeData = await this.jwtService.decode(resetPasswordDto.code);
     if(codeData && codeData.email && codeData._id) {
       const user = await this.userModel.findOne({_id: codeData._id});
-      const isPassValid = bcrypt.compare(codeData.password, user.password);
-      if(user.email === codeData.email && isPassValid) {
+      if(user.email === codeData.email && codeData.password === user.password) {
         const password = await bcrypt.hash(resetPasswordDto.password, 5);
         await this.userModel.updateOne({_id: codeData._id}, {password});
         return UserSuccessMessages.updatePassword;

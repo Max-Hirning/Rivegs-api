@@ -1,3 +1,4 @@
+import {DBs} from './configs/DBs';
 import {Module} from '@nestjs/common';
 import {JwtModule} from '@nestjs/jwt';
 import {AppService} from './app.service';
@@ -10,6 +11,7 @@ import {AuthModule} from './modules/auth/auth.module';
 import {ImageModule} from './modules/image/image.module';
 import {CommonModule} from './modules/common/common.module';
 import {RecipeModule} from './modules/recipe/recipe.module';
+import {UserSchema} from './modules/user/schemas/user.schema';
 import {RecipeTypeModule} from './modules/recipe-type/recipe-type.module';
 
 @Module({
@@ -37,7 +39,8 @@ import {RecipeTypeModule} from './modules/recipe-type/recipe-type.module';
       },
     }),
     ConfigModule.forRoot({envFilePath: '.env', isGlobal: true}),
-    MongooseModule.forRoot(process.env.DB_URL, {dbName: 'BankDash'}),
+    MongooseModule.forRoot(process.env.DB_URL, {dbName: 'Rivegs'}),
+    MongooseModule.forFeature([{name: DBs.users, schema: UserSchema}]),
     JwtModule.register({signOptions: {expiresIn: process.env.JWT_TOKEN_EXPIRES_IN}, secret: process.env.SECRET_KEY}),
   ],
   providers: [AppService],
