@@ -1,5 +1,6 @@
 import {IRecipeType} from './types/recipe-type';
 import {ImageService} from '../image/image.service';
+import {CommonService} from '../common/common.service';
 import {RecipeTypeService} from './recipe-type.service';
 import {FileInterceptor} from '@nestjs/platform-express';
 import {CreateRecipeTypeDto} from './dto/create-recipe-type.dto';
@@ -10,6 +11,7 @@ import {Controller, Get, Post, Body, Put, Param, Delete, UploadedFile, UseInterc
 export class RecipeTypeController {
   constructor(
     private readonly imageService: ImageService,
+    private readonly commonService: CommonService,
     private readonly recipeTypeService: RecipeTypeService
   ) {}
 
@@ -20,17 +22,14 @@ export class RecipeTypeController {
 
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<string> {
-    const {imageId} = await this.recipeTypeService.findOne(id);
+    const {imageId} = await this.commonService.findOneRecipeTypeAPI(id);
     await this.imageService.remove(imageId);
     return this.recipeTypeService.remove(id);
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<IRecipeType> {
-    const recipeType = await this.recipeTypeService.findOne(id);
-    const recipeTypeCopy = JSON.parse(JSON.stringify(recipeType));
-    delete recipeTypeCopy.imageId;
-    return recipeTypeCopy;
+    return this.recipeTypeService.findOne(id);
   }
 
   @Post()
@@ -44,8 +43,8 @@ export class RecipeTypeController {
   @UseInterceptors(FileInterceptor('image'))
   async update(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Body() updateRecipeTypeDto: UpdateRecipeTypeDto): Promise<string> {
     if(file) {
-      const recipeType = await this.recipeTypeService.findOne(id);
-      await this.imageService.update(recipeType.imageId, file.buffer.toString(), {folder: 'Rivegs/recipe-types'});
+      const {imageId} = await this.commonService.findOneRecipeTypeAPI(id);
+      await this.imageService.update(imageId, file.buffer.toString(), {folder: 'Rivegs/recipe-types'});
     }
     return this.recipeTypeService.update(id, updateRecipeTypeDto);
   }

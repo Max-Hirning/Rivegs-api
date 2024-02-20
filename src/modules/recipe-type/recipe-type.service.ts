@@ -1,5 +1,5 @@
-import mongoose, {Model} from 'mongoose';
 import {DBs} from 'src/configs/DBs';
+import mongoose, {Model} from 'mongoose';
 import {InjectModel} from '@nestjs/mongoose';
 import {IRecipeType} from './types/recipe-type';
 import {RecipeType} from './schemas/recipe-type.schema';
@@ -38,7 +38,7 @@ export class RecipeTypeService {
     return recipeType;
   }
 
-  async remove(id: string): Promise<string> {
+  async remove(id: string): Promise<string> { // remove all recipes
     await this.recipeTypeModel.deleteOne({_id: id});
     return 'Recipe type was removed';
   }
@@ -66,7 +66,6 @@ export class RecipeTypeService {
           _id: 1,
           title: 1,
           image: 1,
-          imageId: 1
         }
       }
     ]);

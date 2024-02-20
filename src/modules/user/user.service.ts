@@ -1,32 +1,39 @@
-import {Model} from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import {IUser} from './types/user';
 import {DBs} from 'src/configs/DBs';
+import mongoose, {Model} from 'mongoose';
 import {User} from './schemas/user.schema';
 import {InjectModel} from '@nestjs/mongoose';
-import {CommonService} from '../common/common.service';
 import {UpdateProfileDto} from './dto/update-profile.dto';
 import {UpdateSecurityDto} from './dto/update-security.dto';
-import {UserSuccessMessages} from 'src/configs/messages/user';
+import {AuthSuccessMessages} from 'src/configs/messages/auth';
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
-import {AuthErrorMessages, AuthSuccessMessages} from 'src/configs/messages/auth';
+import {UserErrorMessages, UserSuccessMessages} from 'src/configs/messages/user';
 
 @Injectable()
 export class UserService {
-  constructor(
-    private readonly commonService: CommonService,
-    @InjectModel(DBs.users) private readonly userModel: Model<User>
-  ) {}
+  constructor(@InjectModel(DBs.users) private readonly userModel: Model<User>) {}
 
-  async remove(id: string): Promise<string> { // delete recipes, image(avatar)
+  async remove(id: string): Promise<string> { // delete recipes, delete image(avatar)
     await this.userModel.deleteOne({_id: id});
     return UserSuccessMessages.removeOne;
   }
 
-  async updateProfile(id: string, updateProfileDto: UpdateProfileDto): Promise<string> { // image
-    const user = await this.commonService.findOneUser(id);
-    if(updateProfileDto.email) {
-      await this.commonService.sendConfirmEmail(updateProfileDto.email, {email: updateProfileDto.email, _id: user._id, password: user.password});
-    }
+  async findOne(id: string): Promise<IUser> {
+    const [user] = await this.userModel.aggregate([
+      {$match: {_id: new mongoose.Types.ObjectId(id)}},
+      {
+        $project: {
+          __v: 0,
+          password: 0,
+        }
+      }
+    ]);
+    if(!user) throw new HttpException(UserErrorMessages.findOne, HttpStatus.NOT_FOUND);
+    return user;
+  }
+
+  async updateProfile(id: string, updateProfileDto: UpdateProfileDto): Promise<string> { // update image
     await this.userModel.updateOne({_id: id}, {
       email: updateProfileDto.email,
       login: updateProfileDto.login,
@@ -38,9 +45,6 @@ export class UserService {
   }
 
   async updateSecurity(id: string, updateSecurityDto: UpdateSecurityDto): Promise<string> {
-    const user = await this.commonService.findOneUser(id);
-    const isPassValid = bcrypt.compareSync(updateSecurityDto.oldPassword, user.password);
-    if(!isPassValid) throw new HttpException(AuthErrorMessages.wrongPassword, HttpStatus.BAD_REQUEST);
     const password = await bcrypt.hash(updateSecurityDto.password, 5);
     await this.userModel.updateOne({_id: id}, {password});
     return UserSuccessMessages.updatePassword;
