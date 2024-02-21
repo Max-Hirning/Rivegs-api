@@ -6,6 +6,7 @@ import {RecipeType} from './schemas/recipe-type.schema';
 import {CreateRecipeTypeDto} from './dto/create-recipe-type.dto';
 import {UpdateRecipeTypeDto} from './dto/update-recipe-type.dto';
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
+import {RecipeTypeSuccessMessages} from 'src/configs/messages/recipe-type';
 
 @Injectable()
 export class RecipeTypeService {
@@ -34,13 +35,13 @@ export class RecipeTypeService {
         }
       }
     ]);
-    if(!recipeType || recipeType.length === 0) throw new HttpException('No recipe types', HttpStatus.NOT_FOUND);
+    if(!recipeType || recipeType.length === 0) throw new HttpException(RecipeTypeSuccessMessages.findAll, HttpStatus.NOT_FOUND);
     return recipeType;
   }
 
-  async remove(id: string): Promise<string> { // remove all recipes
+  async remove(id: string): Promise<string> {
     await this.recipeTypeModel.deleteOne({_id: id});
-    return 'Recipe type was removed';
+    return RecipeTypeSuccessMessages.removeOne;
   }
 
   async findOne(id: string): Promise<IRecipeType> {
@@ -69,7 +70,7 @@ export class RecipeTypeService {
         }
       }
     ]);
-    if(!recipeType) throw new HttpException('No such recipe type', HttpStatus.NOT_FOUND);
+    if(!recipeType) throw new HttpException(RecipeTypeSuccessMessages.findOne, HttpStatus.NOT_FOUND);
     return recipeType;
   }
 
@@ -77,7 +78,7 @@ export class RecipeTypeService {
     await this.recipeTypeModel.updateOne({_id: id}, {
       title: updateRecipeTypeDto.title,
     });
-    return 'Recipe type was updated';
+    return RecipeTypeSuccessMessages.updateOne;
   }
 
   async create(createRecipeTypeDto: CreateRecipeTypeDto, imageId: string): Promise<string> {
@@ -85,6 +86,6 @@ export class RecipeTypeService {
       imageId, 
       title: createRecipeTypeDto.title,
     });
-    return 'Recipe type was created';
+    return RecipeTypeSuccessMessages.createOne;
   }
 }

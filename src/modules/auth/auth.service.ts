@@ -46,6 +46,6 @@ export class AuthService {
   async resetPassword(id: string, resetPasswordDto: ResetPasswordDto): Promise<string> {
     const password = await bcrypt.hash(resetPasswordDto.password, 5);
     await this.userModel.updateOne({_id: id}, {password});
-    return UserSuccessMessages.updatePassword;
+    return UserSuccessMessages.updateOne;
   }
 }

@@ -1,28 +1,259 @@
-import {Injectable} from '@nestjs/common';
+import {DBs} from 'src/configs/DBs';
+import {IFilter} from './types/filter';
+import mongoose, {Model} from 'mongoose';
+import {InjectModel} from '@nestjs/mongoose';
+import {Recipe} from './schemas/recipe.schema';
 import {CreateRecipeDto} from './dto/create-recipe.dto';
 import {UpdateRecipeDto} from './dto/update-recipe.dto';
+import {IRecipe, IRecipesPagination} from './types/recipe';
+import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
+import {RecipeErrorMessages, RecipeSuccessMessages} from 'src/configs/messages/recipe';
 
 @Injectable()
 export class RecipeService {
-  findAll(): string {
-    return 'This action returns all recipe';
+  constructor(@InjectModel(DBs.recipes) private readonly recipeModel: Model<Recipe>) {}
+
+  async remove(id: string): Promise<string> {
+    await this.recipeModel.deleteOne({_id: id});
+    return RecipeSuccessMessages.removeOne;
   }
 
-  remove(id: number): string {
-    return `This action removes a #${id} recipe`;
+  async findOne(id: string): Promise<IRecipe> {
+    const [recipe] = await this.recipeModel.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          as: 'image',
+          from: 'images',
+          foreignField: '_id',
+          localField: 'imageId',
+        }
+      },
+      {
+        $lookup: {
+          as: 'author',
+          from: 'users',
+          foreignField: '_id',
+          localField: 'authorId',
+        }
+      },
+      {
+        $lookup: {
+          as: 'type',
+          from: 'recipetypes',
+          foreignField: '_id',
+          localField: 'typeId',
+        }
+      },
+      {
+        $lookup: {
+          from: 'images',
+          as: 'authorImage',
+          foreignField: '_id',
+          localField: 'author.imageId',
+        }
+      },
+      {
+        $lookup: {
+          from: 'images',
+          as: 'typeImage',
+          foreignField: '_id',
+          localField: 'type.imageId',
+        }
+      },
+      {
+        $addFields: {
+          type: {
+            $mergeObjects: [
+              {$arrayElemAt: ['$type', 0]},
+              {
+                image: {
+                  $arrayElemAt: ['$typeImage.url', 0]
+                }
+              }
+            ]
+          },
+          image: { 
+            $arrayElemAt: ['$image', 0] 
+          },
+          author: {
+            $mergeObjects: [
+              {$arrayElemAt: ['$author', 0]},
+              {
+                image: {
+                  $arrayElemAt: ['$authorImage.url', 0]
+                }
+              }
+            ]
+          },
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          type: {
+            _id: 1,
+            title: 1,
+            image: 1,
+          },
+          rate: 1,
+          title: 1,
+          steps: 1,
+          author: {
+            _id: 1,
+            login: 1,
+            email: 1,
+            image: 1,
+            description: 1,
+            savedRecipes: 1,
+          },
+          description: 1,
+          ingredients: 1,
+          image: '$image.url',
+        }
+      }
+    ]);
+    if(!recipe) throw new HttpException(RecipeErrorMessages.findOne, HttpStatus.NOT_FOUND);
+    return recipe;
   }
 
-  findOne(id: number): string {
-    return `This action returns a #${id} recipe`;
-  }
-
-  create(createRecipeDto: CreateRecipeDto): string {
+  async create(createRecipeDto: CreateRecipeDto): Promise<string> {
     console.log(createRecipeDto);
-    return 'This action adds a new recipe';
+    return RecipeSuccessMessages.createOne;
   }
 
-  update(id: number, updateRecipeDto: UpdateRecipeDto): string {
+  async removeAll(id: string, key: 'typeId'|'authorId'): Promise<string> {
+    await this.recipeModel.deleteMany({[key]: id});
+    return RecipeSuccessMessages.removeAll;
+  }
+
+  async update(id: number, updateRecipeDto: UpdateRecipeDto): Promise<string> {
     console.log(updateRecipeDto);
-    return `This action updates a #${id} recipe`;
+    return RecipeSuccessMessages.updateOne;
+  }
+
+  async findAll({pagination, ...filters}: Partial<IFilter>, page?: number): Promise<IRecipesPagination<IRecipe>> {
+    let nextPage = null, previousPage = null;
+    let totalRecipes: number, totalPages: number;
+    const recipes = await this.recipeModel.aggregate([
+      {
+        $match: filters
+      },
+      {
+        $skip: pagination.skip
+      },
+      {
+        $limit: pagination.pageSize
+      },
+      {
+        $lookup: {
+          as: 'image',
+          from: 'images',
+          foreignField: '_id',
+          localField: 'imageId',
+        }
+      },
+      {
+        $lookup: {
+          as: 'author',
+          from: 'users',
+          foreignField: '_id',
+          localField: 'authorId',
+        }
+      },
+      {
+        $lookup: {
+          as: 'type',
+          from: 'recipetypes',
+          foreignField: '_id',
+          localField: 'typeId',
+        }
+      },
+      {
+        $lookup: {
+          from: 'images',
+          as: 'authorImage',
+          foreignField: '_id',
+          localField: 'author.imageId',
+        }
+      },
+      {
+        $lookup: {
+          from: 'images',
+          as: 'typeImage',
+          foreignField: '_id',
+          localField: 'type.imageId',
+        }
+      },
+      {
+        $addFields: {
+          type: {
+            $mergeObjects: [
+              {$arrayElemAt: ['$type', 0]},
+              {
+                image: {
+                  $arrayElemAt: ['$typeImage.url', 0]
+                }
+              }
+            ]
+          },
+          image: { 
+            $arrayElemAt: ['$image', 0] 
+          },
+          author: {
+            $mergeObjects: [
+              {$arrayElemAt: ['$author', 0]},
+              {
+                image: {
+                  $arrayElemAt: ['$authorImage.url', 0]
+                }
+              }
+            ]
+          },
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          type: {
+            _id: 1,
+            title: 1,
+            image: 1,
+          },
+          rate: 1,
+          title: 1,
+          steps: 1,
+          author: {
+            _id: 1,
+            login: 1,
+            email: 1,
+            image: 1,
+            description: 1,
+            savedRecipes: 1,
+          },
+          description: 1,
+          ingredients: 1,
+          image: '$image.url',
+        }
+      }
+    ]);
+    if(page) {
+      totalRecipes = await this.recipeModel.countDocuments(filters);
+      totalPages = Math.ceil(totalRecipes / pagination.pageSize);
+      previousPage = page > 1 ? page - 1 : null;
+      nextPage = page < totalPages ? page + 1 : null;
+    }
+    if(recipes.length === 0) throw new HttpException(RecipeErrorMessages.findAll, HttpStatus.NOT_FOUND);
+    return ({
+      data: recipes,
+      page: page || null,
+      next: nextPage || null,
+      previous: previousPage || null,
+      totalPages: totalPages || null
+    });
   }
 }

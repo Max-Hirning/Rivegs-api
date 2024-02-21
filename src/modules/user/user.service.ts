@@ -14,7 +14,7 @@ import {UserErrorMessages, UserSuccessMessages} from 'src/configs/messages/user'
 export class UserService {
   constructor(@InjectModel(DBs.users) private readonly userModel: Model<User>) {}
 
-  async remove(id: string): Promise<string> { // delete recipes, delete image(avatar)
+  async remove(id: string): Promise<string> {
     await this.userModel.deleteOne({_id: id});
     return UserSuccessMessages.removeOne;
   }
@@ -33,7 +33,12 @@ export class UserService {
     return user;
   }
 
-  async updateProfile(id: string, updateProfileDto: UpdateProfileDto): Promise<string> { // update image
+  async updateSavedRecipes(id: string, savedRecipes: string[]): Promise<string> {
+    await this.userModel.updateOne({_id: id}, {savedRecipes});
+    return UserSuccessMessages.updateOne;
+  }
+
+  async updateProfile(id: string, updateProfileDto: UpdateProfileDto): Promise<string> {
     await this.userModel.updateOne({_id: id}, {
       email: updateProfileDto.email,
       login: updateProfileDto.login,
@@ -41,12 +46,12 @@ export class UserService {
       description: updateProfileDto.description,
     });
     if(updateProfileDto.email) return AuthSuccessMessages.sentEmail;
-    return UserSuccessMessages.updateProfile;
+    return UserSuccessMessages.updateOne;
   }
 
   async updateSecurity(id: string, updateSecurityDto: UpdateSecurityDto): Promise<string> {
     const password = await bcrypt.hash(updateSecurityDto.password, 5);
     await this.userModel.updateOne({_id: id}, {password});
-    return UserSuccessMessages.updatePassword;
+    return UserSuccessMessages.updateOne;
   }
 }

@@ -4,6 +4,7 @@ import {IImage} from './types/image';
 import {Image} from './schemas/image.schema';
 import {InjectModel} from '@nestjs/mongoose';
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
+import {ImageErrorMessages, ImageSuccessMessages} from 'src/configs/messages/image';
 import {v2 as cloudinary, UploadApiErrorResponse, UploadApiOptions, UploadApiResponse} from 'cloudinary';
 
 @Injectable()
@@ -17,12 +18,12 @@ export class ImageService {
       await this.imageModel.deleteOne({_id: id});
       return 'Image was removed';
     }
-    throw new HttpException('Error during removing image', HttpStatus.INTERNAL_SERVER_ERROR);
+    throw new HttpException(ImageErrorMessages.removeOne, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   async findOne(id: string): Promise<IImage> {
     const image = await this.imageModel.findOne({_id: id});
-    if(!image) throw new HttpException('No such image', HttpStatus.NOT_FOUND);
+    if(!image) throw new HttpException(ImageErrorMessages.findOne, HttpStatus.NOT_FOUND);
     return image;
   }
 
@@ -46,7 +47,7 @@ export class ImageService {
       });
       return _id;
     }
-    throw new HttpException('Error during creating image', HttpStatus.INTERNAL_SERVER_ERROR);
+    throw new HttpException(ImageErrorMessages.createOne, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   async update(id: string, file: string, options: Required<Pick<UploadApiOptions, 'folder'>>): Promise<string> {
@@ -70,10 +71,9 @@ export class ImageService {
           id: public_id,
           url: secure_url,
         });
-        return 'Image was updated';
+        return ImageSuccessMessages.updateOne;
       }
-      throw new HttpException('Error during removing old image', HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    throw new HttpException('Error during updating image', HttpStatus.INTERNAL_SERVER_ERROR);
+    throw new HttpException(ImageErrorMessages.removeOne, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

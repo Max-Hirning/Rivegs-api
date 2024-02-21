@@ -3,6 +3,7 @@ import {Module} from '@nestjs/common';
 import {MongooseModule} from '@nestjs/mongoose';
 import {ImageModule} from '../image/image.module';
 import {CommonModule} from '../common/common.module';
+import {RecipeModule} from '../recipe/recipe.module';
 import {RecipeTypeService} from './recipe-type.service';
 import {RecipeTypeSchema} from './schemas/recipe-type.schema';
 import {RecipeTypeController} from './recipe-type.controller';
@@ -11,6 +12,7 @@ import {RecipeTypeController} from './recipe-type.controller';
   imports: [
     ImageModule,
     CommonModule,
+    RecipeModule,
     MongooseModule.forFeature([{name: DBs.recipesTypes, schema: RecipeTypeSchema}]),
   ],
   providers: [RecipeTypeService],

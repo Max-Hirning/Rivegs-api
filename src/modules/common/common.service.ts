@@ -7,9 +7,11 @@ import {InjectModel} from '@nestjs/mongoose';
 import {User} from '../user/schemas/user.schema';
 import {Image} from '../image/schemas/image.schema';
 import {MailerService} from '@nestjs-modules/mailer';
+import {Recipe} from '../recipe/schemas/recipe.schema';
 import {UserErrorMessages} from 'src/configs/messages/user';
 import {IRecipeType} from '../recipe-type/types/recipe-type';
 import {ImageErrorMessages} from 'src/configs/messages/image';
+import {RecipeErrorMessages} from 'src/configs/messages/recipe';
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {RecipeType} from '../recipe-type/schemas/recipe-type.schema';
 import {RecipeTypeErrorMessages} from 'src/configs/messages/recipe-type';
@@ -21,6 +23,7 @@ export class CommonService {
     private readonly mailerService: MailerService,
     @InjectModel(DBs.users) private readonly userModel: Model<User>,
     @InjectModel(DBs.images) private readonly imageModel: Model<Image>,
+    @InjectModel(DBs.users) private readonly recipeModel: Model<Recipe>,
     @InjectModel(DBs.recipesTypes) private readonly recipeTypeModel: Model<RecipeType>
   ) {}
 
@@ -34,6 +37,12 @@ export class CommonService {
     const image = await this.imageModel.findOne({_id: id});
     if(!image) throw new HttpException(ImageErrorMessages.findOne, HttpStatus.NOT_FOUND);
     return image;
+  }
+
+  async findOneRecipeAPI(id: string): Promise<IRecipeType> {
+    const recipe = await this.recipeModel.findOne({_id: id});
+    if(!recipe) throw new HttpException(RecipeErrorMessages.findOne, HttpStatus.NOT_FOUND);
+    return recipe;
   }
 
   async findOneRecipeTypeAPI(id: string): Promise<IRecipeType> {
