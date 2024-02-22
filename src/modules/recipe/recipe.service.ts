@@ -127,9 +127,9 @@ export class RecipeService {
     return recipe;
   }
 
-  async create(createRecipeDto: CreateRecipeDto): Promise<string> {
-    console.log(createRecipeDto);
-    return RecipeSuccessMessages.createOne;
+  async updateRate(id: string, rate: number): Promise<string> {
+    await this.recipeModel.updateOne({_id: id}, {rate});
+    return RecipeSuccessMessages.updateOne;
   }
 
   async removeAll(search: {[key: string]: unknown}): Promise<string> {
@@ -140,9 +140,29 @@ export class RecipeService {
     return RecipeSuccessMessages.removeAll;
   }
 
-  async update(id: number, updateRecipeDto: UpdateRecipeDto): Promise<string> {
-    console.log(updateRecipeDto);
+  async update(id: string, updateRecipeDto: UpdateRecipeDto): Promise<string> {
+    await this.recipeModel.updateOne({_id: id}, {
+      steps: updateRecipeDto.steps,
+      title: updateRecipeDto.title,
+      typeId: updateRecipeDto.typeId,
+      description: updateRecipeDto.description,
+      ingredients: updateRecipeDto.ingredients,
+    });
     return RecipeSuccessMessages.updateOne;
+  }
+
+  async create(createRecipeDto: CreateRecipeDto, imageId: string): Promise<string> {
+    await this.recipeModel.create({
+      rate: 3,
+      imageId,
+      steps: createRecipeDto.steps,
+      title: createRecipeDto.title,
+      typeId: createRecipeDto.typeId,
+      authorId: createRecipeDto.authorId,
+      description: createRecipeDto.description,
+      ingredients: createRecipeDto.ingredients,
+    });
+    return RecipeSuccessMessages.createOne;
   }
 
   async findAll({pagination, ...filters}: Partial<IFilter>, page?: number): Promise<IRecipesPagination<IRecipe>> {

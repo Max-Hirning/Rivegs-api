@@ -40,7 +40,7 @@ export class CommonService {
     return image;
   }
 
-  async findOneRecipeAPI(id: string): Promise<IRecipeType> {
+  async findOneRecipeAPI(id: string): Promise<IRecipe> {
     const recipe = await this.recipeModel.findOne({_id: id});
     if(!recipe) throw new HttpException(RecipeErrorMessages.findOne, HttpStatus.NOT_FOUND);
     return recipe;

@@ -7,7 +7,9 @@ import {CommonService} from '../common/common.service';
 import {CreateRecipeDto} from './dto/create-recipe.dto';
 import {UpdateRecipeDto} from './dto/update-recipe.dto';
 import {IRecipe, IRecipesPagination} from './types/recipe';
-import {Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query} from '@nestjs/common';
+import {UpdateRecipeRateDto} from './dto/update-recipe-rate.dto';
+import {Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query, UseInterceptors, UploadedFile, HttpException, HttpStatus} from '@nestjs/common';
+import {FileInterceptor} from '@nestjs/platform-express';
 
 @Controller('recipe')
 export class RecipeController {
@@ -61,13 +63,30 @@ export class RecipeController {
 
   @Post()
   @UseGuards(AuthGuard)
-  async create(@Body() createRecipeDto: CreateRecipeDto): Promise<string> {
-    return this.recipeService.create(createRecipeDto);
+  @UseInterceptors(FileInterceptor('image'))
+  async create(@UploadedFile() file: Express.Multer.File, @Body() createRecipeDto: CreateRecipeDto): Promise<string> {
+    if(file) {
+      const imageId = await this.imageService.create(file.buffer.toString(), {folder: 'Rivegs/recipes'});
+      return this.recipeService.create(createRecipeDto, imageId);
+    }
+    throw new HttpException('Image is required', HttpStatus.BAD_REQUEST);
   }
 
   @Put(':id')
   @UseGuards(AuthGuard)
-  async update(@Param('id') id: string, @Body() updateRecipeDto: UpdateRecipeDto): Promise<string> {
-    return this.recipeService.update(+id, updateRecipeDto);
+  @UseInterceptors(FileInterceptor('image'))
+  async update(@UploadedFile() file: Express.Multer.File, @Param('id') id: string, @Body() updateRecipeDto: UpdateRecipeDto): Promise<string> {
+    if(file) {
+      const {imageId} = await this.commonService.findOneRecipeAPI(id);
+      await this.imageService.update(imageId, file.buffer.toString(), {folder: 'Rivegs/recipes'});
+    }
+    return this.recipeService.update(id, updateRecipeDto);
+  }
+
+  @Put('rate/:id')
+  @UseGuards(AuthGuard)
+  async updateRate(@Param('id') id: string, @Body() updateRecipeRateDto: UpdateRecipeRateDto): Promise<string> {
+    const {rate} = await this.commonService.findOneRecipeAPI(id);
+    return this.recipeService.updateRate(id, Math.round((updateRecipeRateDto.rate+(rate || 3))/2));
   }
 }
