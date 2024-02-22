@@ -3,6 +3,8 @@ import {IFilter} from './types/filter';
 import mongoose, {Model} from 'mongoose';
 import {InjectModel} from '@nestjs/mongoose';
 import {Recipe} from './schemas/recipe.schema';
+import {ImageService} from '../image/image.service';
+import {CommonService} from '../common/common.service';
 import {CreateRecipeDto} from './dto/create-recipe.dto';
 import {UpdateRecipeDto} from './dto/update-recipe.dto';
 import {IRecipe, IRecipesPagination} from './types/recipe';
@@ -11,7 +13,11 @@ import {RecipeErrorMessages, RecipeSuccessMessages} from 'src/configs/messages/r
 
 @Injectable()
 export class RecipeService {
-  constructor(@InjectModel(DBs.recipes) private readonly recipeModel: Model<Recipe>) {}
+  constructor(
+    private readonly imageService: ImageService,
+    private readonly commonService: CommonService,
+    @InjectModel(DBs.recipes) private readonly recipeModel: Model<Recipe>
+  ) {}
 
   async remove(id: string): Promise<string> {
     await this.recipeModel.deleteOne({_id: id});
@@ -126,8 +132,11 @@ export class RecipeService {
     return RecipeSuccessMessages.createOne;
   }
 
-  async removeAll(id: string, key: 'typeId'|'authorId'): Promise<string> {
-    await this.recipeModel.deleteMany({[key]: id});
+  async removeAll(search: {[key: string]: unknown}): Promise<string> {
+    const recipes = await this.commonService.findRecipesAPI(search);
+    const recipesIds = recipes.map(({_id}: IRecipe) => _id);
+    await this.imageService.removeAll('Rivegs/recipes', recipesIds); // remove all recipes images
+    await this.recipeModel.deleteMany({_id: {$in: recipesIds}});
     return RecipeSuccessMessages.removeAll;
   }
 

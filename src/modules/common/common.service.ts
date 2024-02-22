@@ -4,6 +4,7 @@ import {JwtService} from '@nestjs/jwt';
 import {IUser} from '../user/types/user';
 import {IImage} from '../image/types/image';
 import {InjectModel} from '@nestjs/mongoose';
+import {IRecipe} from '../recipe/types/recipe';
 import {User} from '../user/schemas/user.schema';
 import {Image} from '../image/schemas/image.schema';
 import {MailerService} from '@nestjs-modules/mailer';
@@ -49,6 +50,12 @@ export class CommonService {
     const recipeType = await this.recipeTypeModel.findOne({_id: id});
     if(!recipeType) throw new HttpException(RecipeTypeErrorMessages.findOne, HttpStatus.NOT_FOUND);
     return recipeType;
+  }
+
+  async findRecipesAPI(search: {[key: string]: unknown}): Promise<IRecipe[]> {
+    const recipes = await this.recipeModel.find(search);
+    if(recipes.length === 0) throw new HttpException(UserErrorMessages.findOne, HttpStatus.NOT_FOUND);
+    return recipes;
   }
 
   async sendConfirmEmail(emailReceiver: string, codePayload: Pick<IUser, 'email'|'_id'|'password'>): Promise<void> {

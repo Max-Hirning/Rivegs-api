@@ -6,7 +6,7 @@ import {RecipeTypeService} from './recipe-type.service';
 import {FileInterceptor} from '@nestjs/platform-express';
 import {CreateRecipeTypeDto} from './dto/create-recipe-type.dto';
 import {UpdateRecipeTypeDto} from './dto/update-recipe-type.dto';
-import {Controller, Get, Post, Body, Put, Param, Delete, UploadedFile, UseInterceptors} from '@nestjs/common';
+import {Controller, Get, Post, Body, Put, Param, Delete, UploadedFile, UseInterceptors, HttpException, HttpStatus} from '@nestjs/common';
 
 @Controller('recipe-type')
 export class RecipeTypeController {
@@ -25,8 +25,7 @@ export class RecipeTypeController {
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<string> {
     const {imageId} = await this.commonService.findOneRecipeTypeAPI(id);
-    await this.recipeService.removeAll(id, 'typeId'); // remove all recipes
-    // remove all recipes images
+    await this.recipeService.removeAll({typeId: id}); // remove all recipes
     await this.imageService.remove(imageId);
     return this.recipeTypeService.remove(id);
   }
@@ -39,8 +38,11 @@ export class RecipeTypeController {
   @Post()
   @UseInterceptors(FileInterceptor('image'))
   async create(@UploadedFile() file: Express.Multer.File, @Body() createRecipeTypeDto: CreateRecipeTypeDto): Promise<string> {
-    const imageId = await this.imageService.create(file.buffer.toString(), {folder: 'Rivegs/recipe-types'});
-    return this.recipeTypeService.create(createRecipeTypeDto, imageId);
+    if(file) {
+      const imageId = await this.imageService.create(file.buffer.toString(), {folder: 'Rivegs/recipe-types'});
+      return this.recipeTypeService.create(createRecipeTypeDto, imageId);
+    }
+    throw new HttpException('Image is required', HttpStatus.BAD_REQUEST);
   }
 
   @Put(':id')

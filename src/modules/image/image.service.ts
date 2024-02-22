@@ -16,7 +16,7 @@ export class ImageService {
     const {result} = await cloudinary.uploader.destroy(image.id);
     if(result === 'ok') {
       await this.imageModel.deleteOne({_id: id});
-      return 'Image was removed';
+      return ImageSuccessMessages.removeOne;
     }
     throw new HttpException(ImageErrorMessages.removeOne, HttpStatus.INTERNAL_SERVER_ERROR);
   }
@@ -25,6 +25,17 @@ export class ImageService {
     const image = await this.imageModel.findOne({_id: id});
     if(!image) throw new HttpException(ImageErrorMessages.findOne, HttpStatus.NOT_FOUND);
     return image;
+  }
+
+  async removeAll(folder: string, ids: string[]): Promise<string> {
+    // remove folder with images in cloudinary
+    const result = await cloudinary.api.resources({type: 'upload', prefix: folder});
+    if(result.resources.length > 0) {
+      await cloudinary.api.delete_resources_by_prefix(folder);
+      await cloudinary.api.delete_folder(folder);
+    }
+    await this.imageModel.deleteMany({_id: {$in: ids}});
+    return ImageSuccessMessages.removeAll;
   }
 
   async create(file: string, options: Required<Pick<UploadApiOptions, 'folder'>>): Promise<string> {

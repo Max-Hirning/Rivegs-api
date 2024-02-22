@@ -38,8 +38,9 @@ export class UserService {
     return UserSuccessMessages.updateOne;
   }
 
-  async updateProfile(id: string, updateProfileDto: UpdateProfileDto): Promise<string> {
+  async updateProfile(id: string, updateProfileDto: UpdateProfileDto, imageId?: string): Promise<string> {
     await this.userModel.updateOne({_id: id}, {
+      imageId,
       email: updateProfileDto.email,
       login: updateProfileDto.login,
       __v: updateProfileDto.email ? 0 : 1,

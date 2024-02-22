@@ -5,11 +5,12 @@ import {AuthGuard} from '../auth/guards/auth.guard';
 import {ImageService} from '../image/image.service';
 import {CommonService} from '../common/common.service';
 import {RecipeService} from '../recipe/recipe.service';
+import {FileInterceptor} from '@nestjs/platform-express';
 import {UpdateProfileDto} from './dto/update-profile.dto';
 import {UpdateSecurityDto} from './dto/update-security.dto';
 import {AuthErrorMessages} from 'src/configs/messages/auth';
 import {UpdateSavedRecipesDto} from './dto/update-saved-recipes.dto';
-import {Controller, Get, Body, Put, Param, Delete, UseGuards, HttpException, HttpStatus} from '@nestjs/common';
+import {Controller, Get, Body, Put, Param, Delete, UseGuards, HttpException, HttpStatus, UseInterceptors, UploadedFile} from '@nestjs/common';
 
 @Controller('user')
 export class UserController {
@@ -24,8 +25,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   async remove(@Param('id') id: string): Promise<string> {
     const user = await this.commonService.findOneUserAPI(id);
-    await this.recipeService.removeAll(user._id, 'authorId'); // delete recipes
-    // delete recipes images
+    await this.recipeService.removeAll({authorId: user._id}); // delete recipes
     await this.imageService.remove(user.imageId); // delete image(avatar)
     return this.userService.remove(id);
   }
@@ -37,12 +37,21 @@ export class UserController {
 
   @Put('profile/:id')
   @UseGuards(AuthGuard)
-  async updateProfile(@Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto): Promise<string> { // update image
-    const {_id, password} = await this.commonService.findOneUserAPI(id);
+  @UseInterceptors(FileInterceptor('avatar'))
+  async updateProfile(@UploadedFile() file: Express.Multer.File, @Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto): Promise<string> { // update image
+    let avatarId = undefined;
+    const {_id, password, imageId} = await this.commonService.findOneUserAPI(id);
+    if(file) {
+      if(imageId) {
+        await this.imageService.update(imageId, file.buffer.toString(), {folder: 'Rivegs/avatars'});
+      } else {
+        avatarId = await this.imageService.create(file.buffer.toString(), {folder: 'Rivegs/avatars'});
+      }
+    }
     if(updateProfileDto.email) {
       await this.commonService.sendConfirmEmail(updateProfileDto.email, {email: updateProfileDto.email, _id: _id, password: password});
     }
-    return this.userService.updateProfile(id, updateProfileDto);
+    return this.userService.updateProfile(id, updateProfileDto, avatarId);
   }
 
   @Put('security/:id')
