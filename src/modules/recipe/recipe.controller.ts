@@ -51,6 +51,11 @@ export class RecipeController {
     return this.recipeService.findAll(filter, page ? JSON.parse(page) : undefined);
   }
 
+  @Get(':id')
+  findOne(@Param('id') id: string): Promise<IRecipe> {
+    return this.recipeService.findOne(id);
+  }
+
   @Delete(':id')
   @UseGuards(AuthGuard)
   async remove(@Param('id') id: string): Promise<string> {
@@ -59,9 +64,11 @@ export class RecipeController {
     return this.recipeService.remove(id);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string): Promise<IRecipe> {
-    return this.recipeService.findOne(id);
+  @Put('rate/:id')
+  @UseGuards(AuthGuard)
+  async updateRate(@Param('id') id: string, @Body() updateRecipeRateDto: UpdateRecipeRateDto): Promise<string> {
+    const {rate} = await this.commonService.findOneRecipeAPI(id);
+    return this.recipeService.updateRate(id, Math.round((updateRecipeRateDto.rate+(rate || 3))/2));
   }
 
   @Post()

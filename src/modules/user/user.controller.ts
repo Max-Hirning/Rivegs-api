@@ -35,32 +35,6 @@ export class UserController {
     return this.userService.findOne(id);
   }
 
-  @Put('profile/:id')
-  @UseGuards(AuthGuard)
-  @UseInterceptors(FileInterceptor('avatar'))
-  async updateProfile(@UploadedFile() file: Express.Multer.File, @Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto): Promise<string> { // update image
-    let avatarId = undefined;
-    const {_id, password, imageId} = await this.commonService.findOneUserAPI('_id', id);
-    if(file) {
-      if(imageId) {
-        await this.imageService.update(imageId, file.buffer.toString(), {folder: 'Rivegs/avatars'});
-      } else {
-        avatarId = await this.imageService.create(file.buffer.toString(), {folder: 'Rivegs/avatars'});
-      }
-    }
-    if(updateProfileDto.email) {
-      const user = await this.commonService.findOneUserAPI('email', updateProfileDto.email);
-      if(user) throw new HttpException(AuthErrorMessages.emailIsTaken, HttpStatus.BAD_REQUEST);
-      await this.commonService.sendConfirmEmail(updateProfileDto.email, {email: updateProfileDto.email, _id: _id, password: password});
-    }
-    if(updateProfileDto.login) {
-      const user = await this.commonService.findOneUserAPI('login', updateProfileDto.login);
-      if(user) throw new HttpException(AuthErrorMessages.loginIsTaken, HttpStatus.BAD_REQUEST);
-      await this.commonService.sendConfirmEmail(updateProfileDto.email, {email: updateProfileDto.email, _id: _id, password: password});
-    }
-    return this.userService.updateProfile(id, updateProfileDto, avatarId);
-  }
-
   @Put('security/:id')
   @UseGuards(AuthGuard)
   async updateSecurity(@Param('id') id: string, @Body() updateSecurityDto: UpdateSecurityDto): Promise<string> {
@@ -81,5 +55,31 @@ export class UserController {
       savedRecipesSet.add(updateSavedRecipesDto.recipe);
     }
     return this.userService.updateSavedRecipes(id, Array.from(savedRecipesSet));
+  }
+
+  @Put('profile/:id')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(FileInterceptor('avatar'))
+  async updateProfile(@UploadedFile() file: Express.Multer.File, @Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto): Promise<string> { 
+    let avatarId = undefined;
+    const {_id, password, imageId} = await this.commonService.findOneUserAPI('_id', id);
+    if(file) {
+      if(imageId) {
+        await this.imageService.update(imageId, file.buffer.toString(), {folder: 'Rivegs/avatars'});
+      } else {
+        avatarId = await this.imageService.create(file.buffer.toString(), {folder: 'Rivegs/avatars'});
+      }
+    }
+    if(updateProfileDto.email) {
+      const user = await this.commonService.findOneUserAPI('email', updateProfileDto.email);
+      if(user) throw new HttpException(AuthErrorMessages.emailIsTaken, HttpStatus.BAD_REQUEST);
+      await this.commonService.sendConfirmEmail(updateProfileDto.email, {email: updateProfileDto.email, _id: _id, password: password});
+    }
+    if(updateProfileDto.login) {
+      const user = await this.commonService.findOneUserAPI('login', updateProfileDto.login);
+      if(user) throw new HttpException(AuthErrorMessages.loginIsTaken, HttpStatus.BAD_REQUEST);
+      await this.commonService.sendConfirmEmail(updateProfileDto.email, {email: updateProfileDto.email, _id: _id, password: password});
+    }
+    return this.userService.updateProfile(id, updateProfileDto, avatarId);
   }
 }
