@@ -166,17 +166,29 @@ export class RecipeService {
   }
 
   async findAll({pagination, ...filters}: Partial<IFilter>, page?: number): Promise<IRecipesPagination<IRecipe>> {
-    let nextPage = null, previousPage = null;
-    let totalRecipes: number, totalPages: number;
-    const recipes = await this.recipeModel.aggregate([
-      {
-        $match: filters
-      },
+    const aggregationPipeline = [];
+    if(page) aggregationPipeline.concat([      
       {
         $skip: pagination.skip
       },
       {
         $limit: pagination.pageSize
+      }
+    ]);
+    console.log(filters);
+    let nextPage = null, previousPage = null;
+    let totalRecipes: number, totalPages: number;
+    const recipes = await this.recipeModel.aggregate([
+      { // for searching by author login
+        $lookup: {
+          as: 'author',
+          from: 'users',
+          foreignField: '_id',
+          localField: 'authorId',
+        }
+      },
+      {
+        $match: filters
       },
       {
         $lookup: {
@@ -184,14 +196,6 @@ export class RecipeService {
           from: 'images',
           foreignField: '_id',
           localField: 'imageId',
-        }
-      },
-      {
-        $lookup: {
-          as: 'author',
-          from: 'users',
-          foreignField: '_id',
-          localField: 'authorId',
         }
       },
       {

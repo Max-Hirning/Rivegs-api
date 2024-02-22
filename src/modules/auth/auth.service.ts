@@ -17,8 +17,13 @@ export class AuthService {
   constructor(@InjectModel(DBs.users) private readonly userModel: Model<User>) {}
 
   async signUp(signUpDto: SignUpDto): Promise<IUser> {
-    const existedUser = await this.userModel.findOne({email: signUpDto.email});
-    if(existedUser) throw new HttpException(AuthErrorMessages.emailIsTaken, HttpStatus.BAD_REQUEST);
+    const existedUser = await this.userModel.findOne({
+      $or: [
+        {email: signUpDto.email},
+        {login: signUpDto.login}
+      ]
+    });
+    if(existedUser) throw new HttpException(AuthErrorMessages.credentialsIsTaken, HttpStatus.BAD_REQUEST);
     const password = await bcrypt.hash(signUpDto.password, 5);
     const user = await this.userModel.create({
       password,

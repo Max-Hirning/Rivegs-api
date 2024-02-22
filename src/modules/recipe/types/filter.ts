@@ -17,6 +17,7 @@ export interface IFilter {
   _id: IFilterIds;
   rate: IFilterRate;
   title: IFilterTitle;
+  'author.login': string;
   pagination: IFilterPagination;
   typeId: mongoose.Types.ObjectId;
 }

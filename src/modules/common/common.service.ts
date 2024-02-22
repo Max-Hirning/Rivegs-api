@@ -28,8 +28,8 @@ export class CommonService {
     @InjectModel(DBs.recipesTypes) private readonly recipeTypeModel: Model<RecipeType>
   ) {}
 
-  async findOneUserAPI(id: string): Promise<IUser> {
-    const user = await this.userModel.findOne({_id: id});
+  async findOneUserAPI(key: '_id'|'email'|'login',value: string): Promise<IUser> {
+    const user = await this.userModel.findOne({[key]: value});
     if(!user) throw new HttpException(UserErrorMessages.findOne, HttpStatus.NOT_FOUND);
     return user;
   }

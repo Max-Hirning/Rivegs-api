@@ -26,7 +26,7 @@ export class RecipeController {
     @Query('title') title?: string,
     @Query('typeId') typeId?: string,
     @Query('recipesIds') recipesIds?: string,
-      // @Query('authorLogin') authorLogin?: string,
+    @Query('authorLogin') authorLogin?: string,
   ): Promise<IRecipesPagination<IRecipe>> {
     const filter: Partial<IFilter> = {};
     if(rate) {
@@ -42,6 +42,9 @@ export class RecipeController {
     if(recipesIds) {
       const ids = JSON.parse(recipesIds).map((id: string) => new mongoose.Types.ObjectId(id));
       filter._id = {$in: ids};
+    }
+    if(authorLogin) {
+      filter['author.login'] = authorLogin;
     }
     if(title) filter.title = {$regex: new RegExp(title, 'i')};
     if (typeId) filter.typeId = new mongoose.Types.ObjectId(typeId);
@@ -81,12 +84,5 @@ export class RecipeController {
       await this.imageService.update(imageId, file.buffer.toString(), {folder: 'Rivegs/recipes'});
     }
     return this.recipeService.update(id, updateRecipeDto);
-  }
-
-  @Put('rate/:id')
-  @UseGuards(AuthGuard)
-  async updateRate(@Param('id') id: string, @Body() updateRecipeRateDto: UpdateRecipeRateDto): Promise<string> {
-    const {rate} = await this.commonService.findOneRecipeAPI(id);
-    return this.recipeService.updateRate(id, Math.round((updateRecipeRateDto.rate+(rate || 3))/2));
   }
 }

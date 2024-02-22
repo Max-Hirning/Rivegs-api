@@ -18,7 +18,7 @@ export class AppController {
   async confirmEmail(@Query('code') code: string): Promise<void> {
     const codeData = await this.jwtService.decode(code);
     if(codeData && codeData.email && codeData._id) {
-      const user = await this.commonService.findOneUserAPI(codeData._id);
+      const user = await this.commonService.findOneUserAPI('_id', codeData._id);
       return this.appService.confirmEmail(user, codeData);
     }
     throw new HttpException(AuthErrorMessages.wrongCode, HttpStatus.BAD_REQUEST);

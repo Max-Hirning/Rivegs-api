@@ -56,7 +56,7 @@ export class AuthController {
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto): Promise<string> {
     const codeData = await this.jwtService.decode(resetPasswordDto.code);
     if(codeData && codeData.email && codeData._id) {
-      const user = await this.commonService.findOneUserAPI(codeData._id);
+      const user = await this.commonService.findOneUserAPI('_id', codeData._id);
       if(user.email === codeData.email && codeData.password === user.password) {
         return this.authService.resetPassword(user._id, resetPasswordDto);
       }

@@ -24,7 +24,7 @@ export class UserController {
   @Delete(':id')
   @UseGuards(AuthGuard)
   async remove(@Param('id') id: string): Promise<string> {
-    const user = await this.commonService.findOneUserAPI(id);
+    const user = await this.commonService.findOneUserAPI('_id', id);
     await this.recipeService.removeAll({authorId: user._id}); // delete recipes
     await this.imageService.remove(user.imageId); // delete image(avatar)
     return this.userService.remove(id);
@@ -40,7 +40,7 @@ export class UserController {
   @UseInterceptors(FileInterceptor('avatar'))
   async updateProfile(@UploadedFile() file: Express.Multer.File, @Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto): Promise<string> { // update image
     let avatarId = undefined;
-    const {_id, password, imageId} = await this.commonService.findOneUserAPI(id);
+    const {_id, password, imageId} = await this.commonService.findOneUserAPI('_id', id);
     if(file) {
       if(imageId) {
         await this.imageService.update(imageId, file.buffer.toString(), {folder: 'Rivegs/avatars'});
@@ -49,6 +49,13 @@ export class UserController {
       }
     }
     if(updateProfileDto.email) {
+      const user = await this.commonService.findOneUserAPI('email', updateProfileDto.email);
+      if(user) throw new HttpException(AuthErrorMessages.emailIsTaken, HttpStatus.BAD_REQUEST);
+      await this.commonService.sendConfirmEmail(updateProfileDto.email, {email: updateProfileDto.email, _id: _id, password: password});
+    }
+    if(updateProfileDto.login) {
+      const user = await this.commonService.findOneUserAPI('login', updateProfileDto.login);
+      if(user) throw new HttpException(AuthErrorMessages.loginIsTaken, HttpStatus.BAD_REQUEST);
       await this.commonService.sendConfirmEmail(updateProfileDto.email, {email: updateProfileDto.email, _id: _id, password: password});
     }
     return this.userService.updateProfile(id, updateProfileDto, avatarId);
@@ -57,7 +64,7 @@ export class UserController {
   @Put('security/:id')
   @UseGuards(AuthGuard)
   async updateSecurity(@Param('id') id: string, @Body() updateSecurityDto: UpdateSecurityDto): Promise<string> {
-    const {password} = await this.commonService.findOneUserAPI(id);
+    const {password} = await this.commonService.findOneUserAPI('_id', id);
     const isPassValid = bcrypt.compareSync(updateSecurityDto.oldPassword, password);
     if(!isPassValid) throw new HttpException(AuthErrorMessages.wrongPassword, HttpStatus.BAD_REQUEST);
     return this.userService.updateSecurity(id, updateSecurityDto);
@@ -66,7 +73,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   @Put('saved-recipes/:id')
   async updateSavedRecipes(@Param('id') id: string, @Body() updateSavedRecipesDto: UpdateSavedRecipesDto): Promise<string> {
-    const {savedRecipes} = await this.commonService.findOneUserAPI(id);
+    const {savedRecipes} = await this.commonService.findOneUserAPI('_id', id);
     const savedRecipesSet = new Set(savedRecipes);
     if(savedRecipesSet.has(updateSavedRecipesDto.recipe)) {
       savedRecipesSet.delete(updateSavedRecipesDto.recipe);
