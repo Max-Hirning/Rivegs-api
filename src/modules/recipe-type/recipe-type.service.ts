@@ -6,7 +6,7 @@ import {RecipeType} from './schemas/recipe-type.schema';
 import {CreateRecipeTypeDto} from './dto/create-recipe-type.dto';
 import {UpdateRecipeTypeDto} from './dto/update-recipe-type.dto';
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
-import {RecipeTypeSuccessMessages} from 'src/configs/messages/recipe-type';
+import {RecipeTypeErrorMessages, RecipeTypeSuccessMessages} from 'src/configs/messages/recipe-type';
 
 @Injectable()
 export class RecipeTypeService {
@@ -40,7 +40,7 @@ export class RecipeTypeService {
         }
       }
     ]);
-    if(!recipeType || recipeType.length === 0) throw new HttpException(RecipeTypeSuccessMessages.findAll, HttpStatus.NOT_FOUND);
+    if(!recipeType || recipeType.length === 0) throw new HttpException(RecipeTypeErrorMessages.findAll, HttpStatus.NOT_FOUND);
     return recipeType;
   }
 

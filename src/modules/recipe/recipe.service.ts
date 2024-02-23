@@ -133,7 +133,7 @@ export class RecipeService {
   }
 
   async removeAll(key: 'typeId'|'authorId'|'_id', value: string): Promise<string> {
-    const recipes = await this.commonService.findRecipesAPI(key, value);
+    const recipes = await this.commonService.findRecipesAPI(key, value, true);
     const {imagesIds, ids} = recipes.reduce((res: {imagesIds: string[], ids: string[]}, {imageId, _id}: IRecipe) => {
       res.imagesIds.push(imageId);
       res.ids.push(_id);

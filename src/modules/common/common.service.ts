@@ -24,27 +24,35 @@ export class CommonService {
     @InjectModel(DBs.recipesTypes) private readonly recipeTypeModel: Model<RecipeType>
   ) {}
 
-  async findOneRecipeTypeAPI(key: '_id', value: string): Promise<IRecipeType> {
+  async findOneRecipeTypeAPI(key: '_id', value: string, noCheck?: boolean): Promise<IRecipeType> {
     const recipeType = await this.recipeTypeModel.findOne({[key]: value});
-    if(!recipeType) throw new HttpException(RecipeTypeErrorMessages.findOne, HttpStatus.NOT_FOUND);
+    if(!noCheck) {
+      if(!recipeType) throw new HttpException(RecipeTypeErrorMessages.findOne, HttpStatus.NOT_FOUND);
+    }
     return recipeType;
   }
 
-  async findOneUserAPI(key: '_id'|'email'|'login', value: string): Promise<IUser> {
+  async findOneUserAPI(key: '_id'|'email'|'login', value: string, noCheck?: boolean): Promise<IUser> {
     const user = await this.userModel.findOne({[key]: value});
-    if(!user) throw new HttpException(UserErrorMessages.findOne, HttpStatus.NOT_FOUND);
+    if(!noCheck) {
+      if(!user) throw new HttpException(UserErrorMessages.findOne, HttpStatus.NOT_FOUND);
+    }
     return user;
   }
 
-  async findRecipesAPI(key: 'typeId'|'authorId'|'_id', value: string): Promise<IRecipe[]> {
+  async findRecipesAPI(key: 'typeId'|'authorId'|'_id', value: string, noCheck?: boolean): Promise<IRecipe[]> {
     const recipes = await this.recipeModel.find({[key]: value});
-    if(recipes.length === 0) throw new HttpException(UserErrorMessages.findOne, HttpStatus.NOT_FOUND);
+    if(!noCheck) {
+      if(recipes.length === 0) throw new HttpException(RecipeErrorMessages.findAll, HttpStatus.NOT_FOUND);
+    }
     return recipes;
   }
 
-  async findOneRecipeAPI(key: 'typeId'|'authorId'|'_id', value: string): Promise<IRecipe> {
+  async findOneRecipeAPI(key: 'typeId'|'authorId'|'_id', value: string, noCheck?: boolean): Promise<IRecipe> {
     const recipe = await this.recipeModel.findOne({[key]: value});
-    if(!recipe) throw new HttpException(RecipeErrorMessages.findOne, HttpStatus.NOT_FOUND);
+    if(!noCheck) {
+      if(!recipe) throw new HttpException(RecipeErrorMessages.findOne, HttpStatus.NOT_FOUND);
+    }
     return recipe;
   }
 

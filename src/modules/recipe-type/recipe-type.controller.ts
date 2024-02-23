@@ -59,7 +59,7 @@ export class RecipeTypeController {
       const response = await this.recipeTypeService.create(createRecipeTypeDto, imageId);
       return ({
         message: response,
-        statusCode: HttpStatus.OK,
+        statusCode: HttpStatus.CREATED,
       });
     }
     throw new HttpException('Image is required', HttpStatus.BAD_REQUEST);

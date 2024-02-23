@@ -27,14 +27,16 @@ export class ImageService {
     return image;
   }
 
-  async findAll(ids: string[]): Promise<IImage[]> {
+  async findAll(ids: string[], noCheck?: boolean): Promise<IImage[]> {
     const images = await this.imageModel.find({_id: {$in: ids}});
-    if(images.length === 0) throw new HttpException(ImageErrorMessages.findAll, HttpStatus.NOT_FOUND);
+    if(!noCheck) {
+      if(images.length === 0) throw new HttpException(ImageErrorMessages.findAll, HttpStatus.NOT_FOUND);
+    }
     return images;
   }
 
   async removeAll(ids: string[]): Promise<string> {
-    const images = await this.findAll(ids);
+    const images = await this.findAll(ids, true);
     const imagesIds = images.map(({id}: IImage) => id);
     await cloudinary.api.delete_resources(imagesIds);
     await this.imageModel.deleteMany({_id: {$in: ids}});
