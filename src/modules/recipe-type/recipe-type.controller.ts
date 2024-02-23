@@ -24,8 +24,8 @@ export class RecipeTypeController {
 
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<string> {
-    const {imageId} = await this.commonService.findOneRecipeTypeAPI(id);
-    await this.recipeService.removeAll({typeId: id}); // remove all recipes
+    const {imageId} = await this.commonService.findOneRecipeTypeAPI('_id', id);
+    await this.recipeService.removeAll('typeId', id); // remove all recipes
     await this.imageService.remove(imageId);
     return this.recipeTypeService.remove(id);
   }
@@ -39,7 +39,7 @@ export class RecipeTypeController {
   @UseInterceptors(FileInterceptor('image'))
   async create(@UploadedFile() file: Express.Multer.File, @Body() createRecipeTypeDto: CreateRecipeTypeDto): Promise<string> {
     if(file) {
-      const imageId = await this.imageService.create(file.buffer.toString(), {folder: 'Rivegs/recipe-types'});
+      const imageId = await this.imageService.create(file.buffer, {folder: 'Rivegs/recipe-types'});
       return this.recipeTypeService.create(createRecipeTypeDto, imageId);
     }
     throw new HttpException('Image is required', HttpStatus.BAD_REQUEST);
@@ -49,8 +49,8 @@ export class RecipeTypeController {
   @UseInterceptors(FileInterceptor('image'))
   async update(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Body() updateRecipeTypeDto: UpdateRecipeTypeDto): Promise<string> {
     if(file) {
-      const {imageId} = await this.commonService.findOneRecipeTypeAPI(id);
-      await this.imageService.update(imageId, file.buffer.toString(), {folder: 'Rivegs/recipe-types'});
+      const {imageId} = await this.commonService.findOneRecipeTypeAPI('_id', id);
+      await this.imageService.update(imageId, file.buffer, {folder: 'Rivegs/recipe-types'});
     }
     return this.recipeTypeService.update(id, updateRecipeTypeDto);
   }

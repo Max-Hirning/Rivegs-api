@@ -21,11 +21,65 @@ export class UserService {
 
   async findOne(id: string): Promise<IUser> {
     const [user] = await this.userModel.aggregate([
-      {$match: {_id: new mongoose.Types.ObjectId(id)}},
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(id)
+        },
+      },
+      {
+        $lookup: {
+          as: 'image',
+          from: 'images',
+          foreignField: '_id',
+          localField: 'imageId',
+        },
+      },
+      {
+        $addFields: {
+          avatar: {
+            $arrayElemAt: ['$image.url', 0]
+          },
+        },
+      },
       {
         $project: {
           __v: 0,
+          image: 0,
+          imageId: 0,
           password: 0,
+        },
+      },
+      {
+        $lookup: {
+          let: { 
+            userId: '$_id' 
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: { 
+                  $eq: ['$authorId', '$$userId'] 
+                }
+              }
+            },
+            {
+              $project: {
+                _id: 1
+              }
+            }
+          ],
+          as: 'recipes',
+          from: 'recipes',
+        }
+      },
+      {
+        $addFields: {
+          recipesIds: '$recipes._id'
+        }
+      },
+      {
+        $project: {
+          recipes: 0
         }
       }
     ]);

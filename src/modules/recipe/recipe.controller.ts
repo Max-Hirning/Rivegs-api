@@ -6,10 +6,10 @@ import {ImageService} from '../image/image.service';
 import {CommonService} from '../common/common.service';
 import {CreateRecipeDto} from './dto/create-recipe.dto';
 import {UpdateRecipeDto} from './dto/update-recipe.dto';
+import {FileInterceptor} from '@nestjs/platform-express';
 import {IRecipe, IRecipesPagination} from './types/recipe';
 import {UpdateRecipeRateDto} from './dto/update-recipe-rate.dto';
 import {Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query, UseInterceptors, UploadedFile, HttpException, HttpStatus} from '@nestjs/common';
-import {FileInterceptor} from '@nestjs/platform-express';
 
 @Controller('recipe')
 export class RecipeController {
@@ -41,8 +41,8 @@ export class RecipeController {
     }
     if(recipesIds) {
       const ids = JSON.parse(recipesIds).map((id: string) => new mongoose.Types.ObjectId(id));
-      filter._id = {$in: ids};
-    }
+      if (ids.length > 0) filter._id = {$in: ids};
+    }  
     if(authorLogin) {
       filter['author.login'] = authorLogin;
     }
@@ -59,7 +59,7 @@ export class RecipeController {
   @Delete(':id')
   @UseGuards(AuthGuard)
   async remove(@Param('id') id: string): Promise<string> {
-    const recipe = await this.commonService.findOneRecipeAPI(id);
+    const recipe = await this.commonService.findOneRecipeAPI('_id', id);
     await this.imageService.remove(recipe.imageId);
     return this.recipeService.remove(id);
   }
@@ -67,7 +67,7 @@ export class RecipeController {
   @Put('rate/:id')
   @UseGuards(AuthGuard)
   async updateRate(@Param('id') id: string, @Body() updateRecipeRateDto: UpdateRecipeRateDto): Promise<string> {
-    const {rate} = await this.commonService.findOneRecipeAPI(id);
+    const {rate} = await this.commonService.findOneRecipeAPI('_id', id);
     return this.recipeService.updateRate(id, Math.round((updateRecipeRateDto.rate+(rate || 3))/2));
   }
 
@@ -76,7 +76,9 @@ export class RecipeController {
   @UseInterceptors(FileInterceptor('image'))
   async create(@UploadedFile() file: Express.Multer.File, @Body() createRecipeDto: CreateRecipeDto): Promise<string> {
     if(file) {
-      const imageId = await this.imageService.create(file.buffer.toString(), {folder: 'Rivegs/recipes'});
+      if(!Array.isArray(createRecipeDto.steps)) createRecipeDto.steps = JSON.parse(JSON.parse(createRecipeDto.steps));
+      if(!Array.isArray(createRecipeDto.ingredients)) createRecipeDto.ingredients = JSON.parse(JSON.parse(createRecipeDto.ingredients));
+      const imageId = await this.imageService.create(file.buffer, {folder: `Rivegs/recipes/${createRecipeDto.authorId}`});
       return this.recipeService.create(createRecipeDto, imageId);
     }
     throw new HttpException('Image is required', HttpStatus.BAD_REQUEST);
@@ -87,8 +89,14 @@ export class RecipeController {
   @UseInterceptors(FileInterceptor('image'))
   async update(@UploadedFile() file: Express.Multer.File, @Param('id') id: string, @Body() updateRecipeDto: UpdateRecipeDto): Promise<string> {
     if(file) {
-      const {imageId} = await this.commonService.findOneRecipeAPI(id);
-      await this.imageService.update(imageId, file.buffer.toString(), {folder: 'Rivegs/recipes'});
+      const {imageId, authorId} = await this.commonService.findOneRecipeAPI('_id', id);
+      await this.imageService.update(imageId, file.buffer, {folder: `Rivegs/recipes/${authorId}`});
+    }
+    if(updateRecipeDto.steps) {
+      if(!Array.isArray(updateRecipeDto.steps)) updateRecipeDto.steps = JSON.parse(JSON.parse(updateRecipeDto.steps));
+    }
+    if(updateRecipeDto.ingredients) {
+      if(!Array.isArray(updateRecipeDto.ingredients)) updateRecipeDto.ingredients = JSON.parse(JSON.parse(updateRecipeDto.ingredients));
     }
     return this.recipeService.update(id, updateRecipeDto);
   }

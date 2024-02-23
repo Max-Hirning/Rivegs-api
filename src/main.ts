@@ -17,6 +17,7 @@ async function bootstrap(): Promise<void> {
     allowedHeaders: 'Content-Type, Authorization',
   });
   await app.listen(process.env.PORT);
+  // eslint-disable-next-line no-console
   console.log('API is running');
 }
 

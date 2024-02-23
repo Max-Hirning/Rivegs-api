@@ -33,6 +33,11 @@ export class RecipeTypeService {
           title: 1,
           image: 1,
         }
+      },
+      {
+        $sort: { 
+          title: 1, // 1 for ascending, -1 for descending 
+        }
       }
     ]);
     if(!recipeType || recipeType.length === 0) throw new HttpException(RecipeTypeSuccessMessages.findAll, HttpStatus.NOT_FOUND);

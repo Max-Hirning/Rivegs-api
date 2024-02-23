@@ -1,11 +1,9 @@
-import {Type} from 'class-transformer';
+import {Transform, Type} from 'class-transformer';
 import {IsArray, IsBoolean, IsMongoId, IsNotEmpty, IsOptional, IsString, ValidateNested} from 'class-validator';
 
-class StepDTO {
+class StepIngredientDTO {
   @IsString()
-    id: string;
-
-  @IsString()
+  @IsNotEmpty()
     value: string;
 
   @IsBoolean()
@@ -16,43 +14,34 @@ class StepDTO {
 
   @IsBoolean()
     underlined: boolean;
-
-  @IsString()
-    _id: string;
-}
-
-class IngredientDTO {
-  @IsString()
-    id: string;
-
-  @IsString()
-    value: string;
-
-  @IsBoolean()
-    bold: boolean;
-
-  @IsBoolean()
-    italic: boolean;
-
-  @IsBoolean()
-    underlined: boolean;
-
-  @IsString()
-    _id: string;
 }
 
 export class CreateRecipeDto {
   @IsArray()
   @IsNotEmpty()
-  @Type(() => StepDTO)
+  @Transform(({value}) => {
+    try {
+      return JSON.parse(JSON.parse(value));
+    } catch (error) {
+      return [];
+    }
+  })
   @ValidateNested({each: true})
-    steps: StepDTO[];
+  @Type(() => StepIngredientDTO)
+    steps: StepIngredientDTO[];
 
   @IsArray()
   @IsNotEmpty()
-  @Type(() => IngredientDTO)
+  @Transform(({value}) => {
+    try {
+      return JSON.parse(JSON.parse(value));
+    } catch (error) {
+      return [];
+    }
+  })
   @ValidateNested({each: true})
-    ingredients: IngredientDTO[];
+  @Type(() => StepIngredientDTO)
+    ingredients: StepIngredientDTO[];
 
   @IsString()
   @IsNotEmpty()

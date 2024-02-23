@@ -27,18 +27,21 @@ export class ImageService {
     return image;
   }
 
-  async removeAll(folder: string, ids: string[]): Promise<string> {
-    // remove folder with images in cloudinary
-    const result = await cloudinary.api.resources({type: 'upload', prefix: folder});
-    if(result.resources.length > 0) {
-      await cloudinary.api.delete_resources_by_prefix(folder);
-      await cloudinary.api.delete_folder(folder);
-    }
+  async findAll(ids: string[]): Promise<IImage[]> {
+    const images = await this.imageModel.find({_id: {$in: ids}});
+    if(images.length === 0) throw new HttpException(ImageErrorMessages.findAll, HttpStatus.NOT_FOUND);
+    return images;
+  }
+
+  async removeAll(ids: string[]): Promise<string> {
+    const images = await this.findAll(ids);
+    const imagesIds = images.map(({id}: IImage) => id);
+    await cloudinary.api.delete_resources(imagesIds);
     await this.imageModel.deleteMany({_id: {$in: ids}});
     return ImageSuccessMessages.removeAll;
   }
 
-  async create(file: string, options: Required<Pick<UploadApiOptions, 'folder'>>): Promise<string> {
+  async create(file: Buffer, options: Required<Pick<UploadApiOptions, 'folder'>>): Promise<string> {
     const {public_id, secure_url}: UploadApiResponse|UploadApiErrorResponse = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream(
         {
@@ -61,7 +64,7 @@ export class ImageService {
     throw new HttpException(ImageErrorMessages.createOne, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
-  async update(id: string, file: string, options: Required<Pick<UploadApiOptions, 'folder'>>): Promise<string> {
+  async update(id: string, file: Buffer, options: Required<Pick<UploadApiOptions, 'folder'>>): Promise<string> {
     const image = await this.findOne(id);
     const {public_id, secure_url}: UploadApiResponse|UploadApiErrorResponse = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream(

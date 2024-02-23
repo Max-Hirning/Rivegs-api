@@ -24,9 +24,9 @@ export class UserController {
   @Delete(':id')
   @UseGuards(AuthGuard)
   async remove(@Param('id') id: string): Promise<string> {
-    const user = await this.commonService.findOneUserAPI('_id', id);
-    await this.recipeService.removeAll({authorId: user._id}); // delete recipes
-    await this.imageService.remove(user.imageId); // delete image(avatar)
+    const {imageId, _id} = await this.commonService.findOneUserAPI('_id', id);
+    await this.recipeService.removeAll('authorId', _id); // delete recipes
+    await this.imageService.remove(imageId); // delete image(avatar)
     return this.userService.remove(id);
   }
 
@@ -65,9 +65,9 @@ export class UserController {
     const {_id, password, imageId} = await this.commonService.findOneUserAPI('_id', id);
     if(file) {
       if(imageId) {
-        await this.imageService.update(imageId, file.buffer.toString(), {folder: 'Rivegs/avatars'});
+        await this.imageService.update(imageId, file.buffer, {folder: 'Rivegs/avatars'});
       } else {
-        avatarId = await this.imageService.create(file.buffer.toString(), {folder: 'Rivegs/avatars'});
+        avatarId = await this.imageService.create(file.buffer, {folder: 'Rivegs/avatars'});
       }
     }
     if(updateProfileDto.email) {

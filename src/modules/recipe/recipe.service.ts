@@ -132,11 +132,15 @@ export class RecipeService {
     return RecipeSuccessMessages.updateOne;
   }
 
-  async removeAll(search: {[key: string]: unknown}): Promise<string> {
-    const recipes = await this.commonService.findRecipesAPI(search);
-    const recipesIds = recipes.map(({_id}: IRecipe) => _id);
-    await this.imageService.removeAll('Rivegs/recipes', recipesIds); // remove all recipes images
-    await this.recipeModel.deleteMany({_id: {$in: recipesIds}});
+  async removeAll(key: 'typeId'|'authorId'|'_id', value: string): Promise<string> {
+    const recipes = await this.commonService.findRecipesAPI(key, value);
+    const {imagesIds, ids} = recipes.reduce((res: {imagesIds: string[], ids: string[]}, {imageId, _id}: IRecipe) => {
+      res.imagesIds.push(imageId);
+      res.ids.push(_id);
+      return res;
+    }, {imagesIds: [], ids: []});
+    await this.imageService.removeAll(imagesIds); // remove all recipes images
+    await this.recipeModel.deleteMany({_id: {$in: ids}});
     return RecipeSuccessMessages.removeAll;
   }
 
@@ -175,7 +179,6 @@ export class RecipeService {
         $limit: pagination.pageSize
       }
     ]);
-    console.log(filters);
     let nextPage = null, previousPage = null;
     let totalRecipes: number, totalPages: number;
     const recipes = await this.recipeModel.aggregate([

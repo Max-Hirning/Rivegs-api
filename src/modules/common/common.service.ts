@@ -2,16 +2,13 @@ import {Model} from 'mongoose';
 import {DBs} from 'src/configs/DBs';
 import {JwtService} from '@nestjs/jwt';
 import {IUser} from '../user/types/user';
-import {IImage} from '../image/types/image';
 import {InjectModel} from '@nestjs/mongoose';
 import {IRecipe} from '../recipe/types/recipe';
 import {User} from '../user/schemas/user.schema';
-import {Image} from '../image/schemas/image.schema';
 import {MailerService} from '@nestjs-modules/mailer';
 import {Recipe} from '../recipe/schemas/recipe.schema';
 import {UserErrorMessages} from 'src/configs/messages/user';
 import {IRecipeType} from '../recipe-type/types/recipe-type';
-import {ImageErrorMessages} from 'src/configs/messages/image';
 import {RecipeErrorMessages} from 'src/configs/messages/recipe';
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {RecipeType} from '../recipe-type/schemas/recipe-type.schema';
@@ -23,39 +20,32 @@ export class CommonService {
     private readonly jwtService: JwtService,
     private readonly mailerService: MailerService,
     @InjectModel(DBs.users) private readonly userModel: Model<User>,
-    @InjectModel(DBs.images) private readonly imageModel: Model<Image>,
-    @InjectModel(DBs.users) private readonly recipeModel: Model<Recipe>,
+    @InjectModel(DBs.recipes) private readonly recipeModel: Model<Recipe>,
     @InjectModel(DBs.recipesTypes) private readonly recipeTypeModel: Model<RecipeType>
   ) {}
 
-  async findOneUserAPI(key: '_id'|'email'|'login',value: string): Promise<IUser> {
+  async findOneRecipeTypeAPI(key: '_id', value: string): Promise<IRecipeType> {
+    const recipeType = await this.recipeTypeModel.findOne({[key]: value});
+    if(!recipeType) throw new HttpException(RecipeTypeErrorMessages.findOne, HttpStatus.NOT_FOUND);
+    return recipeType;
+  }
+
+  async findOneUserAPI(key: '_id'|'email'|'login', value: string): Promise<IUser> {
     const user = await this.userModel.findOne({[key]: value});
     if(!user) throw new HttpException(UserErrorMessages.findOne, HttpStatus.NOT_FOUND);
     return user;
   }
 
-  async findOneImageAPI(id: string): Promise<IImage> {
-    const image = await this.imageModel.findOne({_id: id});
-    if(!image) throw new HttpException(ImageErrorMessages.findOne, HttpStatus.NOT_FOUND);
-    return image;
-  }
-
-  async findOneRecipeAPI(id: string): Promise<IRecipe> {
-    const recipe = await this.recipeModel.findOne({_id: id});
-    if(!recipe) throw new HttpException(RecipeErrorMessages.findOne, HttpStatus.NOT_FOUND);
-    return recipe;
-  }
-
-  async findOneRecipeTypeAPI(id: string): Promise<IRecipeType> {
-    const recipeType = await this.recipeTypeModel.findOne({_id: id});
-    if(!recipeType) throw new HttpException(RecipeTypeErrorMessages.findOne, HttpStatus.NOT_FOUND);
-    return recipeType;
-  }
-
-  async findRecipesAPI(search: {[key: string]: unknown}): Promise<IRecipe[]> {
-    const recipes = await this.recipeModel.find(search);
+  async findRecipesAPI(key: 'typeId'|'authorId'|'_id', value: string): Promise<IRecipe[]> {
+    const recipes = await this.recipeModel.find({[key]: value});
     if(recipes.length === 0) throw new HttpException(UserErrorMessages.findOne, HttpStatus.NOT_FOUND);
     return recipes;
+  }
+
+  async findOneRecipeAPI(key: 'typeId'|'authorId'|'_id', value: string): Promise<IRecipe> {
+    const recipe = await this.recipeModel.findOne({[key]: value});
+    if(!recipe) throw new HttpException(RecipeErrorMessages.findOne, HttpStatus.NOT_FOUND);
+    return recipe;
   }
 
   async sendConfirmEmail(emailReceiver: string, codePayload: Pick<IUser, 'email'|'_id'|'password'>): Promise<void> {

@@ -9,8 +9,6 @@ export class Recipe extends Document {
   @Prop({ 
     type: [
       {
-        _id: false,
-        id: String,
         value: String,
         bold: Boolean,
         italic: Boolean,
@@ -24,8 +22,6 @@ export class Recipe extends Document {
   @Prop({ 
     type: [
       {
-        _id: false,
-        id: String,
         value: String,
         bold: Boolean,
         italic: Boolean,
