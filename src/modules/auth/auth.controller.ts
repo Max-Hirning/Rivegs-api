@@ -2,6 +2,7 @@ import {JwtService} from '@nestjs/jwt';
 import {AuthService} from './auth.service';
 import {SignInDto} from './dto/sign-in.dto';
 import {SignUpDto} from './dto/sign-up.dto';
+import {IResponse} from 'src/types/response';
 import {ISignInResponse} from './types/sign-in';
 import {MailerService} from '@nestjs-modules/mailer';
 import {CommonService} from '../common/common.service';
@@ -20,23 +21,30 @@ export class AuthController {
   ) {}
 
   @Post('sign-up')
-  async signUp(@Body() signUpDto: SignUpDto): Promise<string> {
+  async signUp(@Body() signUpDto: SignUpDto): Promise<IResponse<undefined>> {
     const user = await this.authService.signUp(signUpDto);
     await this.commonService.sendConfirmEmail(user.email, {email: user.email, _id: user._id, password: user.password});
-    return AuthSuccessMessages.sentEmail;
+    return ({
+      statusCode: HttpStatus.CREATED,
+      message: AuthSuccessMessages.sentEmail
+    });
   }
 
   @Post('sign-in')
-  async signIn(@Body() signInDto: SignInDto): Promise<ISignInResponse> {
+  async signIn(@Body() signInDto: SignInDto): Promise<IResponse<ISignInResponse>> {
     const user = await this.authService.signIn(signInDto);
     return ({
-      userId: user._id.toString(),
-      token: this.jwtService.sign({_id: user._id, email: user.email, password: user.password}),
+      data: {
+        userId: user._id.toString(),
+        token: this.jwtService.sign({_id: user._id, email: user.email, password: user.password}),
+      },
+      statusCode: HttpStatus.OK,
+      message: AuthSuccessMessages.signIn
     });
   }
 
   @Post('email-request')
-  async emailRequest(@Body() emailRequestDto: EmailRequestDto): Promise<string> {
+  async emailRequest(@Body() emailRequestDto: EmailRequestDto): Promise<IResponse<undefined>> {
     const user = await this.authService.emailRequest(emailRequestDto);
     const code = this.jwtService.sign({email: user.email, _id: user._id, password: user.password}, {expiresIn: process.env.EMAIL_CODE_EXPIRES_IN});
     await this.mailerService.sendMail({
@@ -49,16 +57,23 @@ export class AuthController {
       to: user.email,
       subject: 'Update your security data',
     });
-    return AuthSuccessMessages.sentEmail;
+    return ({
+      statusCode: HttpStatus.OK,
+      message: AuthSuccessMessages.sentEmail,
+    });
   }
 
   @Put('reset-password')
-  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto): Promise<string> {
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto): Promise<IResponse<undefined>> {
     const codeData = await this.jwtService.decode(resetPasswordDto.code);
     if(codeData && codeData.email && codeData._id) {
       const user = await this.commonService.findOneUserAPI('_id', codeData._id);
       if(user.email === codeData.email && codeData.password === user.password) {
-        return this.authService.resetPassword(user._id, resetPasswordDto);
+        const response = await this.authService.resetPassword(user._id, resetPasswordDto);
+        return ({
+          message: response,
+          statusCode: HttpStatus.OK,
+        });
       }
     }
     throw new HttpException(AuthErrorMessages.wrongCode, HttpStatus.BAD_REQUEST);

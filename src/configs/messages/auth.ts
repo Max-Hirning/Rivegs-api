@@ -8,5 +8,6 @@ export enum AuthErrorMessages {
 }
 
 export enum AuthSuccessMessages {
+  signIn = 'You have been authorized',
   sentEmail = 'We have sent you email',
 }

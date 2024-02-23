@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import {IFilter} from './types/filter';
+import {IResponse} from 'src/types/response';
 import {RecipeService} from './recipe.service';
 import {AuthGuard} from '../auth/guards/auth.guard';
 import {ImageService} from '../image/image.service';
@@ -9,6 +10,7 @@ import {UpdateRecipeDto} from './dto/update-recipe.dto';
 import {FileInterceptor} from '@nestjs/platform-express';
 import {IRecipe, IRecipesPagination} from './types/recipe';
 import {UpdateRecipeRateDto} from './dto/update-recipe-rate.dto';
+import {RecipeSuccessMessages} from 'src/configs/messages/recipe';
 import {Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query, UseInterceptors, UploadedFile, HttpException, HttpStatus} from '@nestjs/common';
 
 @Controller('recipe')
@@ -20,14 +22,14 @@ export class RecipeController {
   ) {}
 
   @Get()
-  findAll(
+  async findAll(
     @Query('page') page?: string,
     @Query('rate') rate?: string,
     @Query('title') title?: string,
     @Query('typeId') typeId?: string,
     @Query('recipesIds') recipesIds?: string,
     @Query('authorLogin') authorLogin?: string,
-  ): Promise<IRecipesPagination<IRecipe>> {
+  ): Promise<IResponse<IRecipesPagination<IRecipe>>> {
     const filter: Partial<IFilter> = {};
     if(rate) {
       if(Array.isArray(JSON.parse(rate as string)) && JSON.parse(rate as string).length) {
@@ -48,38 +50,60 @@ export class RecipeController {
     }
     if(title) filter.title = {$regex: new RegExp(title, 'i')};
     if (typeId) filter.typeId = new mongoose.Types.ObjectId(typeId);
-    return this.recipeService.findAll(filter, page ? JSON.parse(page) : undefined);
+    const response = await this.recipeService.findAll(filter, page ? JSON.parse(page) : undefined);
+    return ({
+      data: response,
+      statusCode: HttpStatus.OK,
+      message: RecipeSuccessMessages.findOne,
+    });
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<IRecipe> {
-    return this.recipeService.findOne(id);
+  async findOne(@Param('id') id: string): Promise<IResponse<IRecipe>> {
+    const response = await this.recipeService.findOne(id);
+    return ({
+      data: response,
+      statusCode: HttpStatus.OK,
+      message: RecipeSuccessMessages.findOne,
+    });
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard)
-  async remove(@Param('id') id: string): Promise<string> {
+  async remove(@Param('id') id: string): Promise<IResponse<undefined>> {
     const recipe = await this.commonService.findOneRecipeAPI('_id', id);
     await this.imageService.remove(recipe.imageId);
-    return this.recipeService.remove(id);
+    const response = await this.recipeService.remove(id);
+    return ({
+      message: response,
+      statusCode: HttpStatus.OK,
+    });
   }
 
   @Put('rate/:id')
   @UseGuards(AuthGuard)
-  async updateRate(@Param('id') id: string, @Body() updateRecipeRateDto: UpdateRecipeRateDto): Promise<string> {
+  async updateRate(@Param('id') id: string, @Body() updateRecipeRateDto: UpdateRecipeRateDto): Promise<IResponse<undefined>> {
     const {rate} = await this.commonService.findOneRecipeAPI('_id', id);
-    return this.recipeService.updateRate(id, Math.round((updateRecipeRateDto.rate+(rate || 3))/2));
+    const response = await this.recipeService.updateRate(id, Math.round((updateRecipeRateDto.rate+(rate || 3))/2));
+    return ({
+      message: response,
+      statusCode: HttpStatus.OK,
+    });
   }
 
   @Post()
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('image'))
-  async create(@UploadedFile() file: Express.Multer.File, @Body() createRecipeDto: CreateRecipeDto): Promise<string> {
+  async create(@UploadedFile() file: Express.Multer.File, @Body() createRecipeDto: CreateRecipeDto): Promise<IResponse<undefined>> {
     if(file) {
       if(!Array.isArray(createRecipeDto.steps)) createRecipeDto.steps = JSON.parse(JSON.parse(createRecipeDto.steps));
       if(!Array.isArray(createRecipeDto.ingredients)) createRecipeDto.ingredients = JSON.parse(JSON.parse(createRecipeDto.ingredients));
       const imageId = await this.imageService.create(file.buffer, {folder: `Rivegs/recipes/${createRecipeDto.authorId}`});
-      return this.recipeService.create(createRecipeDto, imageId);
+      const response = await this.recipeService.create(createRecipeDto, imageId);
+      return ({
+        message: response,
+        statusCode: HttpStatus.OK,
+      });
     }
     throw new HttpException('Image is required', HttpStatus.BAD_REQUEST);
   }
@@ -87,7 +111,7 @@ export class RecipeController {
   @Put(':id')
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('image'))
-  async update(@UploadedFile() file: Express.Multer.File, @Param('id') id: string, @Body() updateRecipeDto: UpdateRecipeDto): Promise<string> {
+  async update(@UploadedFile() file: Express.Multer.File, @Param('id') id: string, @Body() updateRecipeDto: UpdateRecipeDto): Promise<IResponse<undefined>> {
     if(file) {
       const {imageId, authorId} = await this.commonService.findOneRecipeAPI('_id', id);
       await this.imageService.update(imageId, file.buffer, {folder: `Rivegs/recipes/${authorId}`});
@@ -98,6 +122,10 @@ export class RecipeController {
     if(updateRecipeDto.ingredients) {
       if(!Array.isArray(updateRecipeDto.ingredients)) updateRecipeDto.ingredients = JSON.parse(JSON.parse(updateRecipeDto.ingredients));
     }
-    return this.recipeService.update(id, updateRecipeDto);
+    const response = await this.recipeService.update(id, updateRecipeDto);
+    return ({
+      message: response,
+      statusCode: HttpStatus.OK,
+    });
   }
 }
