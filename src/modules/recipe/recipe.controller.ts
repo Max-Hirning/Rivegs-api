@@ -96,8 +96,8 @@ export class RecipeController {
   @UseInterceptors(FileInterceptor('image'))
   async create(@UploadedFile() file: Express.Multer.File, @Body() createRecipeDto: CreateRecipeDto): Promise<IResponse<undefined>> {
     if(file) {
-      if(!Array.isArray(createRecipeDto.steps)) createRecipeDto.steps = JSON.parse(JSON.parse(createRecipeDto.steps));
-      if(!Array.isArray(createRecipeDto.ingredients)) createRecipeDto.ingredients = JSON.parse(JSON.parse(createRecipeDto.ingredients));
+      if(!Array.isArray(createRecipeDto.steps)) createRecipeDto.steps = JSON.parse(createRecipeDto.steps);
+      if(!Array.isArray(createRecipeDto.ingredients)) createRecipeDto.ingredients = JSON.parse(createRecipeDto.ingredients);
       const imageId = await this.imageService.create(file.buffer, {folder: `Rivegs/recipes/${createRecipeDto.authorId}`});
       const response = await this.recipeService.create(createRecipeDto, imageId);
       return ({
@@ -117,10 +117,10 @@ export class RecipeController {
       await this.imageService.update(imageId, file.buffer, {folder: `Rivegs/recipes/${authorId}`});
     }
     if(updateRecipeDto.steps) {
-      if(!Array.isArray(updateRecipeDto.steps)) updateRecipeDto.steps = JSON.parse(JSON.parse(updateRecipeDto.steps));
+      if(!Array.isArray(updateRecipeDto.steps)) updateRecipeDto.steps = JSON.parse(updateRecipeDto.steps);
     }
     if(updateRecipeDto.ingredients) {
-      if(!Array.isArray(updateRecipeDto.ingredients)) updateRecipeDto.ingredients = JSON.parse(JSON.parse(updateRecipeDto.ingredients));
+      if(!Array.isArray(updateRecipeDto.ingredients)) updateRecipeDto.ingredients = JSON.parse(updateRecipeDto.ingredients);
     }
     const response = await this.recipeService.update(id, updateRecipeDto);
     return ({

@@ -21,7 +21,7 @@ export class CreateRecipeDto {
   @IsNotEmpty()
   @Transform(({value}) => {
     try {
-      return JSON.parse(JSON.parse(value));
+      return JSON.parse(value);
     } catch (error) {
       return [];
     }
@@ -34,7 +34,7 @@ export class CreateRecipeDto {
   @IsNotEmpty()
   @Transform(({value}) => {
     try {
-      return JSON.parse(JSON.parse(value));
+      return JSON.parse(value);
     } catch (error) {
       return [];
     }
