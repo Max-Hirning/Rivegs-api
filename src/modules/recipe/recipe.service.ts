@@ -169,19 +169,21 @@ export class RecipeService {
   }
 
   async findAll({pagination, ...filters}: Partial<IFilter>, page?: number): Promise<IRecipesPagination<IRecipe>> {
-    const aggregationPipeline = [];
-    if(page) aggregationPipeline.concat([      
-      {
-        $skip: pagination.skip
-      },
-      {
-        $limit: pagination.pageSize
-      }
-    ]);
+    let aggregationPipeline = [];
+    if (page) {
+      aggregationPipeline = aggregationPipeline.concat([
+        {
+          $skip: pagination.skip
+        },
+        {
+          $limit: pagination.pageSize
+        }
+      ]);
+    }
     let nextPage = null, previousPage = null;
     let totalRecipes: number, totalPages: number;
     const recipes = await this.recipeModel.aggregate([
-      { // for searching by author login
+      {
         $lookup: {
           as: 'author',
           from: 'users',
@@ -236,8 +238,8 @@ export class RecipeService {
               }
             ]
           },
-          image: { 
-            $arrayElemAt: ['$image', 0] 
+          image: {
+            $arrayElemAt: ['$image', 0]
           },
           author: {
             $mergeObjects: [
@@ -273,15 +275,16 @@ export class RecipeService {
           ingredients: 1,
           image: '$image.url',
         }
-      }
+      },
+      ...aggregationPipeline,
     ]);
-    if(page) {
+    if (page) {
       totalRecipes = await this.recipeModel.countDocuments(filters);
       totalPages = Math.ceil(totalRecipes / pagination.pageSize);
       previousPage = page > 1 ? page - 1 : null;
       nextPage = page < totalPages ? page + 1 : null;
     }
-    if(recipes.length === 0) throw new HttpException(RecipeErrorMessages.findAll, HttpStatus.NOT_FOUND);
+    if (recipes.length === 0) throw new HttpException(RecipeErrorMessages.findAll, HttpStatus.NOT_FOUND);
     return ({
       data: recipes,
       page: page || null,
@@ -290,4 +293,5 @@ export class RecipeService {
       totalPages: totalPages || null
     });
   }
+
 }

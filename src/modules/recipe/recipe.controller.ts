@@ -49,7 +49,7 @@ export class RecipeController {
       filter['author.login'] = authorLogin;
     }
     if(title) filter.title = {$regex: new RegExp(title, 'i')};
-    if (typeId) filter.typeId = new mongoose.Types.ObjectId(typeId);
+    if(typeId) filter.typeId = new mongoose.Types.ObjectId(typeId);
     const response = await this.recipeService.findAll(filter, page ? JSON.parse(page) : undefined);
     return ({
       data: response,
