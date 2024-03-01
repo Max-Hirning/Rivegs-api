@@ -1,7 +1,9 @@
 import * as bcrypt from 'bcrypt';
 import {IUser} from './types/user';
+import {JwtService} from '@nestjs/jwt';
 import {UserService} from './user.service';
 import {IResponse} from 'src/types/response';
+import {UserGuard} from './guards/user.guard';
 import {AuthGuard} from '../auth/guards/auth.guard';
 import {ImageService} from '../image/image.service';
 import {CommonService} from '../common/common.service';
@@ -17,6 +19,7 @@ import {Controller, Get, Body, Put, Param, Delete, UseGuards, HttpException, Htt
 @Controller('user')
 export class UserController {
   constructor(
+    private jwtService: JwtService,
     private readonly userService: UserService,
     private readonly imageService: ImageService,
     private readonly recipeService: RecipeService,
@@ -35,6 +38,7 @@ export class UserController {
 
   @Delete(':id')
   @UseGuards(AuthGuard)
+  @UseGuards(UserGuard)
   async remove(@Param('id') id: string): Promise<IResponse<undefined>> {
     const {imageId, _id} = await this.commonService.findOneUserAPI('_id', id);
     await this.recipeService.removeAll('authorId', _id); // delete recipes
@@ -48,6 +52,7 @@ export class UserController {
 
   @Put('security/:id')
   @UseGuards(AuthGuard)
+  @UseGuards(UserGuard)
   async updateSecurity(@Param('id') id: string, @Body() updateSecurityDto: UpdateSecurityDto): Promise<IResponse<undefined>> {
     const {password} = await this.commonService.findOneUserAPI('_id', id);
     const isPassValid = bcrypt.compareSync(updateSecurityDto.oldPassword, password);
@@ -59,8 +64,9 @@ export class UserController {
     });
   }
 
-  @UseGuards(AuthGuard)
   @Put('saved-recipes/:id')
+  @UseGuards(AuthGuard)
+  @UseGuards(UserGuard)
   async updateSavedRecipes(@Param('id') id: string, @Body() updateSavedRecipesDto: UpdateSavedRecipesDto): Promise<IResponse<undefined>> {
     const {savedRecipes} = await this.commonService.findOneUserAPI('_id', id);
     const savedRecipesSet = new Set(savedRecipes);
@@ -78,6 +84,7 @@ export class UserController {
 
   @Put('profile/:id')
   @UseGuards(AuthGuard)
+  @UseGuards(UserGuard)
   @UseInterceptors(FileInterceptor('avatar'))
   async updateProfile(@UploadedFile() file: Express.Multer.File, @Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto): Promise<IResponse<undefined>> { 
     let avatarId = undefined;

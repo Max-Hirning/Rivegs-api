@@ -1,6 +1,7 @@
 import {IResponse} from 'src/types/response';
 import {IRecipeType} from './types/recipe-type';
 import {ImageService} from '../image/image.service';
+import {AdminGuard} from '../auth/guards/admin.guard';
 import {CommonService} from '../common/common.service';
 import {RecipeService} from '../recipe/recipe.service';
 import {RecipeTypeService} from './recipe-type.service';
@@ -8,7 +9,7 @@ import {FileInterceptor} from '@nestjs/platform-express';
 import {CreateRecipeTypeDto} from './dto/create-recipe-type.dto';
 import {UpdateRecipeTypeDto} from './dto/update-recipe-type.dto';
 import {RecipeSuccessMessages} from 'src/configs/messages/recipe';
-import {Controller, Get, Post, Body, Put, Param, Delete, UploadedFile, UseInterceptors, HttpException, HttpStatus} from '@nestjs/common';
+import {Controller, Get, Post, Body, Put, Param, Delete, UploadedFile, UseInterceptors, HttpException, HttpStatus, UseGuards} from '@nestjs/common';
 
 @Controller('recipe-type')
 export class RecipeTypeController {
@@ -30,6 +31,7 @@ export class RecipeTypeController {
   }
 
   @Delete(':id')
+  @UseGuards(AdminGuard)
   async remove(@Param('id') id: string): Promise<IResponse<undefined>> {
     const {imageId} = await this.commonService.findOneRecipeTypeAPI('_id', id);
     await this.recipeService.removeAll('typeId', id); // remove all recipes
@@ -52,6 +54,7 @@ export class RecipeTypeController {
   }
 
   @Post()
+  @UseGuards(AdminGuard)
   @UseInterceptors(FileInterceptor('image'))
   async create(@UploadedFile() file: Express.Multer.File, @Body() createRecipeTypeDto: CreateRecipeTypeDto): Promise<IResponse<string>> {
     if(file) {
@@ -66,6 +69,7 @@ export class RecipeTypeController {
   }
 
   @Put(':id')
+  @UseGuards(AdminGuard)
   @UseInterceptors(FileInterceptor('image'))
   async update(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Body() updateRecipeTypeDto: UpdateRecipeTypeDto): Promise<IResponse<undefined>> {
     if(file) {

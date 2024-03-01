@@ -33,18 +33,26 @@ export class AuthService {
     return user;
   }
 
-  async signIn(signInDto: SignInDto): Promise<IUser> {
+  async emailRequest(emailRequestDto: EmailRequestDto): Promise<IUser> {
+    const user = await this.userModel.findOne({email: emailRequestDto.email});
+    if(!user) throw new HttpException(UserErrorMessages.findOne, HttpStatus.BAD_REQUEST);
+    return user;
+  }
+
+  async signIn(signInDto: SignInDto): Promise<Pick<IUser, 'email'|'_id'|'password'>> {
+    if(signInDto.email === process.env.ADMIN_EMAIL && signInDto.password === process.env.ADMIN_PASSWORD) {
+      const password = await bcrypt.hash(signInDto.password, 5);
+      return ({
+        password,
+        email: signInDto.email,
+        _id: process.env.ADMIN_ID,
+      });
+    }
     const user = await this.userModel.findOne(({email: signInDto.email}));
     if(!user) throw new HttpException(UserErrorMessages.findOne, HttpStatus.NOT_FOUND);
     const isPassValid = bcrypt.compareSync(signInDto.password, user.password);
     if(!isPassValid) throw new HttpException(AuthErrorMessages.wrongPassword, HttpStatus.BAD_REQUEST);
     if(user.__v !== 1) throw new HttpException(AuthErrorMessages.confirmEmail, HttpStatus.BAD_REQUEST);
-    return user;
-  }
-
-  async emailRequest(emailRequestDto: EmailRequestDto): Promise<IUser> {
-    const user = await this.userModel.findOne({email: emailRequestDto.email});
-    if(!user) throw new HttpException(UserErrorMessages.findOne, HttpStatus.BAD_REQUEST);
     return user;
   }
 

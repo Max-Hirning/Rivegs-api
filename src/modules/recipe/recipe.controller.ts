@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import {IFilter} from './types/filter';
 import {IResponse} from 'src/types/response';
 import {RecipeService} from './recipe.service';
+import {RecipeGuard} from './guards/recipe.guard';
 import {AuthGuard} from '../auth/guards/auth.guard';
 import {ImageService} from '../image/image.service';
 import {CommonService} from '../common/common.service';
@@ -70,6 +71,7 @@ export class RecipeController {
 
   @Delete(':id')
   @UseGuards(AuthGuard)
+  @UseGuards(RecipeGuard)
   async remove(@Param('id') id: string): Promise<IResponse<undefined>> {
     const recipe = await this.commonService.findOneRecipeAPI('_id', id);
     await this.imageService.remove(recipe.imageId);
@@ -110,6 +112,7 @@ export class RecipeController {
 
   @Put(':id')
   @UseGuards(AuthGuard)
+  @UseGuards(RecipeGuard)
   @UseInterceptors(FileInterceptor('image'))
   async update(@UploadedFile() file: Express.Multer.File, @Param('id') id: string, @Body() updateRecipeDto: UpdateRecipeDto): Promise<IResponse<undefined>> {
     if(file) {
