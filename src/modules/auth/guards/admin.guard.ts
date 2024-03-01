@@ -12,7 +12,6 @@ export class AdminGuard implements CanActivate {
       const bearer = authHeader.split(' ')[0];
       const token = authHeader.split(' ')[1];
       if (bearer !== 'Bearer' || !token) throw new HttpException('Invalid token', HttpStatus.BAD_REQUEST);
-
       const tokenData = this.jwtService.verify(token, {secret: process.env.SECRET_KEY});
       if(tokenData._id === process.env.ADMIN_ID && tokenData.email === process.env.ADMIN_EMAIL && tokenData.password === process.env.ADMIN_PASSWORD) {
         req.user = tokenData;
