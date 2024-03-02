@@ -12,7 +12,7 @@ async function bootstrap(): Promise<void> {
     api_secret: process.env.CLOUDINARY_APISECRET,
   });
   app.enableCors({
-    origin: '*',
+    origin: process.env.ORIGIN_URL,
     methods: 'GET, PUT, POST, DELETE',
     allowedHeaders: 'Content-Type, Authorization',
   });
