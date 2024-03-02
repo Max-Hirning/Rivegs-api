@@ -23,13 +23,23 @@ Clone the repository:
 `npm install`
 
 3. Set up your environment variables by creating a .env file in the root directory. Sample .env variables:
-`
-MONGODB_URI=mongodb://localhost:27017/rivegs
-JWT_SECRET=your_jwt_secret_key
-CLOUDINARY_URL=your_cloudinary_url
-`
+* `EMAIL=""` 
+* `EMAIL_PASS=""` 
+* `EMAIL_CODE_EXPIRES_IN="1d"` 
+* `JWT_TOKEN_EXPIRES_IN="30d"` 
+* `ADMIN_ID=""` 
+* `ADMIN_EMAIL=""` 
+* `ADMIN_PASSWORD=""` 
+* `CLOUDINARY_CLOUDNAME=""` 
+* `CLOUDINARY_APIKEY=""` 
+* `CLOUDINARY_APISECRET=""` 
+* `PORT=5000` 
+* `ORIGIN_URL=""` 
+* `SECRET_KEY=""` 
+* `ORIGIN_API_URL=""` 
+* `DB_URL=""` 
 
-4. Start the development server:
+5. Start the development server:
 `npm run start:dev`
 
 The API server will start at `http://localhost:${PORT}`.
