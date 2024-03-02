@@ -1,4 +1,4 @@
-import {IResponse} from 'src/types/response';
+import {IResponse} from '../../types/response';
 import {IRecipeType} from './types/recipe-type';
 import {ImageService} from '../image/image.service';
 import {AdminGuard} from '../auth/guards/admin.guard';
@@ -8,7 +8,7 @@ import {RecipeTypeService} from './recipe-type.service';
 import {FileInterceptor} from '@nestjs/platform-express';
 import {CreateRecipeTypeDto} from './dto/create-recipe-type.dto';
 import {UpdateRecipeTypeDto} from './dto/update-recipe-type.dto';
-import {RecipeSuccessMessages} from 'src/configs/messages/recipe';
+import {RecipeSuccessMessages} from '../../configs/messages/recipe';
 import {Controller, Get, Post, Body, Put, Param, Delete, UploadedFile, UseInterceptors, HttpException, HttpStatus, UseGuards} from '@nestjs/common';
 
 @Controller('recipe-type')

@@ -1,5 +1,5 @@
 import {Model} from 'mongoose';
-import {DBs} from 'src/configs/DBs';
+import {DBs} from '../../configs/DBs';
 import {JwtService} from '@nestjs/jwt';
 import {IUser} from '../user/types/user';
 import {InjectModel} from '@nestjs/mongoose';
@@ -7,12 +7,12 @@ import {IRecipe} from '../recipe/types/recipe';
 import {User} from '../user/schemas/user.schema';
 import {MailerService} from '@nestjs-modules/mailer';
 import {Recipe} from '../recipe/schemas/recipe.schema';
-import {UserErrorMessages} from 'src/configs/messages/user';
 import {IRecipeType} from '../recipe-type/types/recipe-type';
-import {RecipeErrorMessages} from 'src/configs/messages/recipe';
+import {UserErrorMessages} from '../../configs/messages/user';
+import {RecipeErrorMessages} from '../../configs/messages/recipe';
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {RecipeType} from '../recipe-type/schemas/recipe-type.schema';
-import {RecipeTypeErrorMessages} from 'src/configs/messages/recipe-type';
+import {RecipeTypeErrorMessages} from '../../configs/messages/recipe-type';
 
 @Injectable()
 export class CommonService {

@@ -1,14 +1,14 @@
 import * as bcrypt from 'bcrypt';
 import {IUser} from './types/user';
-import {DBs} from 'src/configs/DBs';
+import {DBs} from '../../configs/DBs';
 import mongoose, {Model} from 'mongoose';
 import {User} from './schemas/user.schema';
 import {InjectModel} from '@nestjs/mongoose';
 import {UpdateProfileDto} from './dto/update-profile.dto';
 import {UpdateSecurityDto} from './dto/update-security.dto';
-import {AuthSuccessMessages} from 'src/configs/messages/auth';
+import {AuthSuccessMessages} from '../../configs/messages/auth';
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
-import {UserErrorMessages, UserSuccessMessages} from 'src/configs/messages/user';
+import {UserErrorMessages, UserSuccessMessages} from '../../configs/messages/user';
 
 @Injectable()
 export class UserService {

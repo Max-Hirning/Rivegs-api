@@ -1,5 +1,5 @@
-import {DBs} from 'src/configs/DBs';
 import {Module} from '@nestjs/common';
+import {DBs} from '../../configs/DBs';
 import {JwtModule} from '@nestjs/jwt';
 import {ConfigModule} from '@nestjs/config';
 import {CommonService} from './common.service';

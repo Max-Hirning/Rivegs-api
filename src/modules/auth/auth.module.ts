@@ -1,4 +1,4 @@
-import {DBs} from 'src/configs/DBs';
+import {DBs} from '../../configs/DBs';
 import {Module} from '@nestjs/common';
 import {JwtModule} from '@nestjs/jwt';
 import {AuthService} from './auth.service';

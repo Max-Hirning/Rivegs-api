@@ -1,5 +1,5 @@
-import {DBs} from 'src/configs/DBs';
 import {Module} from '@nestjs/common';
+import {DBs} from '../../configs/DBs';
 import {ImageService} from './image.service';
 import {MongooseModule} from '@nestjs/mongoose';
 import {ImageSchema} from './schemas/image.schema';

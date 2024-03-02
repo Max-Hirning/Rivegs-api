@@ -1,6 +1,6 @@
 import mongoose, {Document} from 'mongoose';
-import {Image} from 'src/modules/image/schemas/image.schema';
 import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
+import {Image} from '../../../modules/image/schemas/image.schema';
 
 @Schema()
 export class User extends Document {

@@ -1,4 +1,4 @@
-import {DBs} from 'src/configs/DBs';
+import {DBs} from '../../configs/DBs';
 import {IFilter} from './types/filter';
 import mongoose, {Model} from 'mongoose';
 import {InjectModel} from '@nestjs/mongoose';
@@ -9,7 +9,7 @@ import {CreateRecipeDto} from './dto/create-recipe.dto';
 import {UpdateRecipeDto} from './dto/update-recipe.dto';
 import {IRecipe, IRecipesPagination} from './types/recipe';
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
-import {RecipeErrorMessages, RecipeSuccessMessages} from 'src/configs/messages/recipe';
+import {RecipeErrorMessages, RecipeSuccessMessages} from '../../configs/messages/recipe';
 
 @Injectable()
 export class RecipeService {

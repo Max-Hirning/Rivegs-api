@@ -1,9 +1,9 @@
 import {Model} from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import {DBs} from 'src/configs/DBs';
 import {JwtService} from '@nestjs/jwt';
+import {DBs} from '../../../configs/DBs';
 import {InjectModel} from '@nestjs/mongoose';
-import {User} from 'src/modules/user/schemas/user.schema';
+import {User} from '../../../modules/user/schemas/user.schema';
 import {CanActivate, ExecutionContext, Injectable, HttpException, HttpStatus} from '@nestjs/common';
 
 @Injectable()

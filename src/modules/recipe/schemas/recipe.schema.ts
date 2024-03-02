@@ -1,8 +1,8 @@
 import mongoose, {Document} from 'mongoose';
-import {User} from 'src/modules/user/schemas/user.schema';
-import {Image} from 'src/modules/image/schemas/image.schema';
 import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
-import {RecipeType} from 'src/modules/recipe-type/schemas/recipe-type.schema';
+import {User} from '../../../modules/user/schemas/user.schema';
+import {Image} from '../../../modules/image/schemas/image.schema';
+import {RecipeType} from '../../../modules/recipe-type/schemas/recipe-type.schema';
 
 @Schema()
 export class Recipe extends Document {

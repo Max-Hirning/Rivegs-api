@@ -1,6 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import {JwtService} from '@nestjs/jwt';
-import {CommonService} from 'src/modules/common/common.service';
+import {CommonService} from '../../../modules/common/common.service';
 import {CanActivate, ExecutionContext, Injectable, HttpException, HttpStatus} from '@nestjs/common';
 
 @Injectable()

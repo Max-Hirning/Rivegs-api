@@ -1,6 +1,6 @@
 import {Model} from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import {DBs} from 'src/configs/DBs';
+import {DBs} from '../../configs/DBs';
 import {IUser} from '../user/types/user';
 import {SignInDto} from './dto/sign-in.dto';
 import {SignUpDto} from './dto/sign-up.dto';
@@ -8,9 +8,9 @@ import {InjectModel} from '@nestjs/mongoose';
 import {User} from '../user/schemas/user.schema';
 import {EmailRequestDto} from './dto/email-request.dto';
 import {ResetPasswordDto} from './dto/reset-password.dto';
-import {AuthErrorMessages} from 'src/configs/messages/auth';
+import {AuthErrorMessages} from '../../configs/messages/auth';
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
-import {UserErrorMessages, UserSuccessMessages} from 'src/configs/messages/user';
+import {UserErrorMessages, UserSuccessMessages} from '../../configs/messages/user';
 
 @Injectable()
 export class AuthService {
