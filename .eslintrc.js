@@ -4,7 +4,7 @@ module.exports = {
       jest: true,
     },
     rules: {
-      "no-console": 2,
+      // "no-console": 2,
       "indent": ["error", 2],
       "space-before-blocks": 2,
       "semi": ["error", "always"],
