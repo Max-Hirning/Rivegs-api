@@ -1,8 +1,8 @@
-import {IResponse} from 'src/types/app.types';
 import {RecipeService} from './recipe.service';
+import {IResponse} from '../../types/app.types';
 import {CreateRecipeDto} from './dto/create-recipe.dto';
 import {UpdateRecipeDto} from './dto/update-recipe.dto';
-import {RecipeSuccessMessages} from 'src/configs/messages/recipe';
+import {RecipeSuccessMessages} from '../../configs/messages/recipe';
 import {Controller, Get, Post, Body, Param, Delete, Put, HttpStatus} from '@nestjs/common';
 
 @Controller('recipe')

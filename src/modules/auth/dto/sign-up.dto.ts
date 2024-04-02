@@ -1,5 +1,5 @@
 import {SignInDto} from './sign-in.dto';
-import {IsNotEmpty, IsString, MaxLength} from 'class-validator/types/decorator/decorators';
+import {IsNotEmpty, IsString, MaxLength} from 'class-validator';
 
 export class SignUpDto extends SignInDto {
   @IsString()

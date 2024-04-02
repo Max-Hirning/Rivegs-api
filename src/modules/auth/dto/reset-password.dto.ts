@@ -1,14 +1,4 @@
-import {MaxLength, MinLength, IsString, IsNotEmpty, IsJWT} from 'class-validator';
+import {SignInDto} from './sign-in.dto';
+import {PickType} from '@nestjs/mapped-types';
 
-export class ResetPasswordDto {
-  @IsJWT()
-  @IsString()
-  @IsNotEmpty()
-    code: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(8)
-  @MaxLength(20)
-    password: string;
-}
+export class ResetPasswordDto extends PickType(SignInDto, ['password']) {}

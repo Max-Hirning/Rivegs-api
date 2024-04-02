@@ -4,11 +4,25 @@ import {AppService} from './app.service';
 import {ConfigModule} from '@nestjs/config';
 import {AppController} from './app.controller';
 import {MongooseModule} from '@nestjs/mongoose';
+import {Collections} from 'configs/collections';
 import {MailerModule} from '@nestjs-modules/mailer';
+import {AuthModule} from './modules/auth/auth.module';
+import {UserSchema} from 'modules/user/schemas/user.schema';
+// import {UserModule} from './modules/user/user.module';
+// import {ImageModule} from './modules/image/image.module';
+// import {RecipeModule} from './modules/recipe/recipe.module';
+import {CommonModule} from './modules/common/common.module';
+// import {RecipeTypeModule} from './modules/recipe-type/recipe-type.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({envFilePath: '.env', isGlobal: true}),
+    AuthModule,
+    // UserModule,
+    // ImageModule,
+    CommonModule,
+    // RecipeModule,
+    // RecipeTypeModule,
     MailerModule.forRoot({
       transport: {
         auth: {
@@ -27,6 +41,7 @@ import {MailerModule} from '@nestjs-modules/mailer';
       },
     }),
     MongooseModule.forRoot(process.env.DB_URL, {dbName: 'Rivegs'}),
+    MongooseModule.forFeature([{name: Collections.users, schema: UserSchema}]),
     JwtModule.register({signOptions: {expiresIn: process.env.JWT_TOKEN_EXPIRES_IN}, secret: process.env.SECRET_KEY}),
   ],
   providers: [AppService],

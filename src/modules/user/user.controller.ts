@@ -1,7 +1,7 @@
 import {UserService} from './user.service';
-import {IResponse} from 'src/types/app.types';
+import {IResponse} from '../../types/app.types';
 import {UpdateUserDto} from './dto/update-user.dto';
-import {UserSuccessMessages} from 'src/configs/messages/user';
+import {UserSuccessMessages} from '../../configs/messages/user';
 import {Controller, Get, Body, Param, Delete, Put, HttpStatus} from '@nestjs/common';
 
 @Controller('user')
