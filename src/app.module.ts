@@ -7,8 +7,8 @@ import {MongooseModule} from '@nestjs/mongoose';
 import {Collections} from 'configs/collections';
 import {MailerModule} from '@nestjs-modules/mailer';
 import {AuthModule} from './modules/auth/auth.module';
+import {UserModule} from './modules/user/user.module';
 import {UserSchema} from 'modules/user/schemas/user.schema';
-// import {UserModule} from './modules/user/user.module';
 // import {ImageModule} from './modules/image/image.module';
 // import {RecipeModule} from './modules/recipe/recipe.module';
 import {CommonModule} from './modules/common/common.module';
@@ -18,7 +18,7 @@ import {CommonModule} from './modules/common/common.module';
   imports: [
     ConfigModule.forRoot({envFilePath: '.env', isGlobal: true}),
     AuthModule,
-    // UserModule,
+    UserModule,
     // ImageModule,
     CommonModule,
     // RecipeModule,
