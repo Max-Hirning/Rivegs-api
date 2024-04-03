@@ -12,7 +12,7 @@ import {UserSchema} from 'modules/user/schemas/user.schema';
 // import {ImageModule} from './modules/image/image.module';
 // import {RecipeModule} from './modules/recipe/recipe.module';
 import {CommonModule} from './modules/common/common.module';
-// import {RecipeTypeModule} from './modules/recipe-type/recipe-type.module';
+import {RecipeTypeModule} from './modules/recipe-type/recipe-type.module';
 
 @Module({
   imports: [
@@ -22,7 +22,7 @@ import {CommonModule} from './modules/common/common.module';
     // ImageModule,
     CommonModule,
     // RecipeModule,
-    // RecipeTypeModule,
+    RecipeTypeModule,
     MailerModule.forRoot({
       transport: {
         auth: {
