@@ -15,6 +15,7 @@ import {CommonModule} from 'modules/common/common.module';
     CommonModule,
     MongooseModule.forFeature([{name: Collections.recipes, schema: RecipeSchema}]),
   ],
+  exports: [RecipeService],
   providers: [RecipeService],
   controllers: [RecipeController],
 })

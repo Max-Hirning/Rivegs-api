@@ -1,7 +1,9 @@
+import {IRecipe} from 'modules/recipe/types/recipe';
 import {RecipeTypeService} from './recipe-type.service';
 import {AuthGuard} from 'modules/auth/guards/auth.guard';
 import {FileInterceptor} from '@nestjs/platform-express';
 import {ImageService} from 'modules/image/image.service';
+import {RecipeService} from 'modules/recipe/recipe.service';
 import {CommonService} from 'modules/common/common.service';
 import {ICustomRequest, IResponse} from '../../types/app.types';
 import {CreateRecipeTypeDto} from './dto/create-recipe-type.dto';
@@ -15,6 +17,7 @@ export class RecipeTypeController {
   constructor(
     private readonly imageService: ImageService,
     private readonly commonService: CommonService,
+    private readonly recipeService: RecipeService,
     private readonly recipeTypeService: RecipeTypeService,
   ) {}
 
@@ -43,7 +46,16 @@ export class RecipeTypeController {
   async remove(@Request() req: ICustomRequest, @Param('id') id: string): Promise<IResponse<undefined>> {
     if(req.role !== 'Admin') throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     const recipeType = await this.commonService.findOneRecipeTypeAPI('_id', id);
-    //TODO delete all recipes by recipe type id
+    // delete all recipes by recipe type id
+    const recipes = await this.commonService.findManyRecipesAPI('typeId', id);
+    const {imagesIds, ids} = recipes.reduce((res: {imagesIds: string[], ids: string[]}, {imageId, _id}: IRecipe) => {
+      res.imagesIds.push(imageId);
+      res.ids.push(_id);
+      return res;
+    }, {imagesIds: [], ids: []});
+    await this.imageService.removeAll(imagesIds); // remove all recipes images
+    await this.recipeService.removeMany(ids);
+
     await this.imageService.removeOne(recipeType.imageId);
     const response = await this.recipeTypeService.remove(id);
     return ({

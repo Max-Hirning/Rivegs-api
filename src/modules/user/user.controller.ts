@@ -2,6 +2,7 @@ import * as bcrypt from 'bcrypt';
 import {JwtService} from '@nestjs/jwt';
 import {UserService} from './user.service';
 import {IUpdateProfile, IUser} from './types/user';
+import {IRecipe} from 'modules/recipe/types/recipe';
 import {MailerService} from '@nestjs-modules/mailer';
 import {ImageService} from 'modules/image/image.service';
 import {FileInterceptor} from '@nestjs/platform-express';
@@ -9,6 +10,7 @@ import {AuthGuard} from 'modules/auth/guards/auth.guard';
 import {UpdateProfileDto} from './dto/update-profile.dto';
 import {CommonService} from 'modules/common/common.service';
 import {UpdateSecurityDto} from './dto/update-security.dto';
+import {RecipeService} from 'modules/recipe/recipe.service';
 import {UserSuccessMessages} from '../../configs/messages/user';
 import {ICustomRequest, IResponse} from '../../types/app.types';
 import {UpdateSavedRecipesDto} from './dto/update-saved-recipes.dto';
@@ -21,6 +23,7 @@ export class UserController {
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly imageService: ImageService,
+    private readonly recipeService: RecipeService,
     private readonly commonService: CommonService,
     private readonly mailerService: MailerService,
   ) {}
@@ -40,8 +43,16 @@ export class UserController {
   async remove(@Request() req: ICustomRequest, @Param('id') id: string): Promise<IResponse<undefined>> {
     if(req.role === 'Admin' || req._id === id) {
       const user = await this.commonService.findOneUserAPI('_id', id);
-      //delete recipes by author id
-      await this.imageService.removeOne(user.imageId); // delete image(avatar)
+      // delete recipes by author id
+      const recipes = await this.commonService.findManyRecipesAPI('authorId', id);
+      const {imagesIds, ids} = recipes.reduce((res: {imagesIds: string[], ids: string[]}, {imageId, _id}: IRecipe) => {
+        res.imagesIds.push(imageId);
+        res.ids.push(_id);
+        return res;
+      }, {imagesIds: [], ids: []});
+      await this.imageService.removeAll(imagesIds); // remove all recipes images
+      await this.recipeService.removeMany(ids);
+      if(user.imageId) await this.imageService.removeOne(user.imageId); // delete image(avatar)
       const response = await this.userService.removeOne(id);
       return ({
         message: response,

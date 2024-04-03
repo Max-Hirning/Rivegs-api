@@ -22,7 +22,7 @@ export class CommonService {
     @InjectModel(Collections.recipesTypes) private readonly recipeTypeModel: Model<RecipeType>
   ) {}
 
-  async findManyRecipesAPI(key: 'authorId', value: string): Promise<IRecipe[]> {
+  async findManyRecipesAPI(key: 'authorId'|'typeId', value: string): Promise<IRecipe[]> {
     const recipes = await this.recipeModel.find({[key]: value});
     return recipes;
   }

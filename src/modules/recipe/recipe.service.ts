@@ -107,6 +107,39 @@ const aggregationPipeLine: PipelineStage[] = [
 export class RecipeService {
   constructor(@InjectModel(Collections.recipes) private readonly recipeModel: Model<Recipe>) {}
 
+  async remove(id: string): Promise<string> {
+    await this.recipeModel.deleteOne({_id: id});
+    return RecipeSuccessMessages.removeOne;
+  }
+
+  async findOne(id: string): Promise<IRecipe> {
+    const [recipe] = await this.recipeModel.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(id)
+        },
+      },
+      ...aggregationPipeLine
+    ]);  
+    if(!recipe) throw new HttpException(RecipeErrorMessages.findOne, HttpStatus.NOT_FOUND);
+    return recipe;
+  }
+
+  async removeMany(ids: string[]): Promise<string> {
+    await this.recipeModel.deleteMany({_id: {$in: ids}});
+    return RecipeSuccessMessages.removeMany;
+  }
+
+  async create(createRecipe: ICreateRecipe): Promise<string> {
+    await this.recipeModel.create(createRecipe);
+    return RecipeSuccessMessages.createOne;
+  }
+
+  async update(id: string, updateRecipe: Partial<IUpdateRecipe>): Promise<string> {
+    await this.recipeModel.updateOne({_id: id}, updateRecipe);
+    return RecipeSuccessMessages.updateOne;
+  }
+
   async findAll(filters: Partial<IFilters>, page?: number): Promise<IPagintaion<IRecipe[]>> {
     let totalPages = null;
     const aggregationPipeLineCopy = [...aggregationPipeLine];
@@ -139,33 +172,5 @@ export class RecipeService {
       previous: (page && page > 1) ? page - 1 : null,
       next: (page && page < totalPages) ? page + 1 : null,
     });
-  }
-
-  async remove(id: string): Promise<string> {
-    await this.recipeModel.deleteOne({_id: id});
-    return RecipeSuccessMessages.removeOne;
-  }
-
-  async findOne(id: string): Promise<IRecipe> {
-    const [recipe] = await this.recipeModel.aggregate([
-      {
-        $match: {
-          _id: new mongoose.Types.ObjectId(id)
-        },
-      },
-      ...aggregationPipeLine
-    ]);  
-    if(!recipe) throw new HttpException(RecipeErrorMessages.findOne, HttpStatus.NOT_FOUND);
-    return recipe;
-  }
-
-  async create(createRecipe: ICreateRecipe): Promise<string> {
-    await this.recipeModel.create(createRecipe);
-    return RecipeSuccessMessages.createOne;
-  }
-
-  async update(id: string, updateRecipe: Partial<IUpdateRecipe>): Promise<string> {
-    await this.recipeModel.updateOne({_id: id}, updateRecipe);
-    return RecipeSuccessMessages.updateOne;
   }
 }

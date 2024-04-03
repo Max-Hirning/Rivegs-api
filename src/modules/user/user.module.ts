@@ -7,12 +7,14 @@ import {UserController} from './user.controller';
 import {UserSchema} from './schemas/user.schema';
 import {ImageModule} from 'modules/image/image.module';
 import {CommonModule} from 'modules/common/common.module';
+import {RecipeModule} from 'modules/recipe/recipe.module';
 
 @Module({
   imports: [
     JwtModule,
     ImageModule,
     CommonModule,
+    RecipeModule,
     MongooseModule.forFeature([{name: Collections.users, schema: UserSchema}]),
   ],
   providers: [UserService],
