@@ -35,6 +35,14 @@ export class ImageService {
     throw new HttpException(ImageErrorMessages.removeOne, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
+  async removeAll(ids: string[]): Promise<string> {
+    const images = await this.imageModel.find({_id: {$in: ids}});
+    const imagesIds = images.map(({id}: IImage) => id);
+    await cloudinary.api.delete_resources(imagesIds);
+    await this.imageModel.deleteMany({_id: {$in: ids}});
+    return ImageSuccessMessages.removeMany;
+  }
+
   async createOne(file: Buffer, options: IOptions): Promise<string> {
     const {public_id, secure_url}: UploadApiResponse|UploadApiErrorResponse = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream(

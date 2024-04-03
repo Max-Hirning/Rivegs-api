@@ -9,8 +9,7 @@ import {MailerModule} from '@nestjs-modules/mailer';
 import {AuthModule} from './modules/auth/auth.module';
 import {UserModule} from './modules/user/user.module';
 import {UserSchema} from 'modules/user/schemas/user.schema';
-// import {ImageModule} from './modules/image/image.module';
-// import {RecipeModule} from './modules/recipe/recipe.module';
+import {RecipeModule} from './modules/recipe/recipe.module';
 import {CommonModule} from './modules/common/common.module';
 import {RecipeTypeModule} from './modules/recipe-type/recipe-type.module';
 
@@ -19,9 +18,8 @@ import {RecipeTypeModule} from './modules/recipe-type/recipe-type.module';
     ConfigModule.forRoot({envFilePath: '.env', isGlobal: true}),
     AuthModule,
     UserModule,
-    // ImageModule,
     CommonModule,
-    // RecipeModule,
+    RecipeModule,
     RecipeTypeModule,
     MailerModule.forRoot({
       transport: {
