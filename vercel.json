@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "src/main.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "methods": [
+        "GET",
+        "PUT",
+        "POST",
+        "DELETE",
+        "OPTIONS"
+      ],
+      "headers": {
+        "Access-Control-Allow-Origin": "https://fin-track-web.vercel.app"
+      },
+      "src": "/(.*)",
+      "dest": "src/main.ts"
+    }
+  ]
+}
