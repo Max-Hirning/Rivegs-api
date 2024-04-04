@@ -2,8 +2,8 @@ export enum AuthErrorMessages {
   wrongCode = 'Wrong code',
   wrongPassword = 'Wrong password',
   confirmEmail = 'Confirm your email',
-  existedUserEmail = 'User with suvh email allready exists',
-  existedUserLogin = 'User with suvh login allready exists',
+  existedUserEmail = 'User with such email allready exists',
+  existedUserLogin = 'User with such login allready exists',
 }
 
 export enum AuthSuccessMessages {

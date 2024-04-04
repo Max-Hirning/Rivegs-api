@@ -44,9 +44,7 @@ Clone the repository:
 
 The API server will start at `http://localhost:${PORT}`.
 
----
-#### **[API DOC](https://cliff-salto-b7b.notion.site/Rivegs-API-5a8db5b4c343413db6c519defaa4be2f)**
----
+## **[Postman](https://www.postman.com/maxitco/workspace/rivegs-api)**
 
 ## Support and Contributions
 For support, questions, or feedback, please contact maxhirning25@gmail.com.

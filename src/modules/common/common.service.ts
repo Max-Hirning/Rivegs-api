@@ -24,7 +24,7 @@ export class CommonService {
 
   async findManyRecipesAPI(key: 'authorId'|'typeId', value: string): Promise<IRecipe[]> {
     const recipes = await this.recipeModel.find({[key]: value});
-    return recipes;
+    return recipes || [];
   }
 
   async findOneRecipeAPI(key: '_id', value: string, noCheck?: boolean): Promise<IRecipe> {
