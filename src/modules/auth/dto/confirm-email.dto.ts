@@ -3,7 +3,7 @@ import {PickType} from '@nestjs/mapped-types';
 import {IsString, IsNotEmpty, Length} from 'class-validator';
 
 export class ConfirmEmailDto extends PickType(SignInDto, ['email']) {
-  @Length(8)
+  @Length(4)
   @IsString()
   @IsNotEmpty()
     code: string;

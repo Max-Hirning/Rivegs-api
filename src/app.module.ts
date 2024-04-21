@@ -1,5 +1,6 @@
 import {JwtModule} from '@nestjs/jwt';
 import {Module} from '@nestjs/common';
+import {AppService} from 'app.service';
 import {ConfigModule} from '@nestjs/config';
 import {AppController} from './app.controller';
 import {MongooseModule} from '@nestjs/mongoose';
@@ -41,6 +42,7 @@ import {RecipeTypeModule} from './modules/recipe-type/recipe-type.module';
     MongooseModule.forFeature([{name: Collections.users, schema: UserSchema}]),
     JwtModule.register({signOptions: {expiresIn: process.env.JWT_TOKEN_EXPIRES_IN}, secret: process.env.SECRET_KEY}),
   ],
+  providers: [AppService],
   controllers: [AppController],
 })
 export class AppModule {}

@@ -1,7 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import {JwtService} from '@nestjs/jwt';
 import {UserService} from './user.service';
-import {usersInVerify} from '../../configs';
 import {IUpdateProfile, IUser} from './types/user';
 import {IRecipe} from 'modules/recipe/types/recipe';
 import {MailerService} from '@nestjs-modules/mailer';
@@ -51,8 +50,8 @@ export class UserController {
         res.ids.push(_id);
         return res;
       }, {imagesIds: [], ids: []});
-      await this.imageService.removeAll(imagesIds); // remove all recipes images
-      await this.recipeService.removeMany(ids);
+      (imagesIds.length > 0) && await this.imageService.removeAll(imagesIds); // remove all recipes images
+      (ids.length > 0) && await this.recipeService.removeMany(ids);
       if(user.imageId) await this.imageService.removeOne(user.imageId); // delete image(avatar)
       const response = await this.userService.removeOne(id);
       return ({
@@ -144,23 +143,19 @@ export class UserController {
     if(updateProfileDto.description) updateProfile.description = updateProfileDto.description;
     const response = await this.userService.updateProfile(id, updateProfile);
     if(updateProfile.email) {
-      const code = this.commonService.generateUniqueCode();
-      usersInVerify[user.email] = {
-        code,
-        _id: user._id,
-      };
+      const code = this.jwtService.sign({version: user.version + 0.1, _id: id}, {expiresIn: process.env.EMAIL_CODE_EXPIRES_IN, secret: process.env.SECRET_KEY});
       await this.mailerService.sendMail({
         html: `
           <div>
             <h3>Please, do not reply to this letter</h3>
-            <p>Your code: ${code}</p>
+            <a href="${process.env.ORIGIN_API_URL}/confirm-email?code=${code}">Confirm your new email</a>
           </div>
         `,
         to: updateProfile.email,
-        subject: 'Confirm your email',
         from: process.env.ADMIN_EMAIL,
         sender: process.env.ADMIN_EMAIL,
         replyTo: process.env.ADMIN_EMAIL,
+        subject: 'Confirm your new email',
       });
       return ({
         statusCode: HttpStatus.OK,
