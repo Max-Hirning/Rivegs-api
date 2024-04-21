@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import {JwtService} from '@nestjs/jwt';
 import {UserService} from './user.service';
+import {usersInVerify} from '../../configs';
 import {IUpdateProfile, IUser} from './types/user';
 import {IRecipe} from 'modules/recipe/types/recipe';
 import {MailerService} from '@nestjs-modules/mailer';
@@ -143,19 +144,23 @@ export class UserController {
     if(updateProfileDto.description) updateProfile.description = updateProfileDto.description;
     const response = await this.userService.updateProfile(id, updateProfile);
     if(updateProfile.email) {
-      const code = this.jwtService.sign({email: updateProfile.email, id, password: user.password}, {expiresIn: process.env.EMAIL_CODE_EXPIRES_IN});
+      const code = this.commonService.generateUniqueCode();
+      usersInVerify[user.email] = {
+        code,
+        _id: user._id,
+      };
       await this.mailerService.sendMail({
         html: `
           <div>
             <h3>Please, do not reply to this letter</h3>
-            <a href="${process.env.ORIGIN_API_URL}/confirm-email?code=${code}">Confirm your new email</a>
+            <p>Your code: ${code}</p>
           </div>
         `,
         to: updateProfile.email,
+        subject: 'Confirm your email',
         from: process.env.ADMIN_EMAIL,
         sender: process.env.ADMIN_EMAIL,
         replyTo: process.env.ADMIN_EMAIL,
-        subject: 'Confirm your new email',
       });
       return ({
         statusCode: HttpStatus.OK,

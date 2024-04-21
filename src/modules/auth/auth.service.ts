@@ -18,6 +18,10 @@ export class AuthService {
     return false;
   }
 
+  async confirmEmail(id: string): Promise<void> {
+    await this.userModel.updateOne({_id: id}, {__v: 1});
+  }
+
   async signUp(signUp: ISignUp): Promise<IUser> {
     const user = await this.userModel.create(signUp);
     return user;

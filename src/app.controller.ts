@@ -1,34 +1,16 @@
-import {Response} from 'express';
-import {JwtService} from '@nestjs/jwt';
-import {AppService} from './app.service';
 import {ContactUsDto} from 'dto/contact-us.dto';
 import {MailerService} from '@nestjs-modules/mailer';
-import {AuthErrorMessages} from 'configs/messages/auth';
 import {AuthGuard} from 'modules/auth/guards/auth.guard';
 import {ICustomRequest, IResponse} from 'types/app.types';
 import {CommonService} from 'modules/common/common.service';
-import {Body, Controller, Get, HttpException, HttpStatus, Post, Query, Request, Res, UseGuards} from '@nestjs/common';
+import {Body, Controller, HttpException, HttpStatus, Post, Request, UseGuards} from '@nestjs/common';
 
 @Controller()
 export class AppController {
   constructor(
-    private readonly jwtService: JwtService,
-    private readonly appService: AppService,
     private readonly mailerService: MailerService,
     private readonly commonService: CommonService,
   ) {}
-
-  @Get('confirm-email')
-  async confirmEmail(@Res() res: Response, @Query('code') code: string): Promise<void> {
-    res.redirect(`${process.env.ORIGIN_URL}/auth/sign-in`);
-    const codeData = await this.jwtService.decode(code);
-    const user = await this.commonService.findOneUserAPI('_id', codeData._id);
-    if(user.version === codeData.version) {
-      await this.appService.confirmEmail(user._id.toString());
-      return;
-    }
-    throw new HttpException(AuthErrorMessages.wrongCode, HttpStatus.BAD_REQUEST);
-  }
 
   @Post('contact-us')
   @UseGuards(AuthGuard)
