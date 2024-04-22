@@ -68,7 +68,7 @@ export class RecipeController {
   @UseGuards(AuthGuard)
   async remove(@Request() req: ICustomRequest, @Param('id') id: string): Promise<IResponse<undefined>> {
     const recipe = await this.commonService.findOneRecipeAPI('_id', id);
-    if(req._id !== recipe._id) throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    if(req._id !== recipe.authorId.toString()) throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     await this.imageService.removeOne(recipe.imageId);
     const response = await this.recipeService.remove(id);
     return ({
@@ -93,7 +93,7 @@ export class RecipeController {
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   async create(@Request() req: ICustomRequest, @UploadedFile() file: Express.Multer.File, @Body() createRecipeDto: CreateRecipeDto): Promise<IResponse<undefined>> {
-    if(req._id !== createRecipeDto.authorId) throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    if(req._id !== createRecipeDto.authorId.toString()) throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     await this.commonService.findOneUserAPI('_id', createRecipeDto.authorId);
     await this.commonService.findOneRecipeTypeAPI('_id', createRecipeDto.typeId);
     const response = await this.recipeService.create({
@@ -120,7 +120,7 @@ export class RecipeController {
   @UseInterceptors(FileInterceptor('file'))
   async update(@Request() req: ICustomRequest, @Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Body() updateRecipeDto: UpdateRecipeDto): Promise<IResponse<undefined>> {
     const recipe = await this.commonService.findOneRecipeAPI('_id', id);
-    if(req._id !== recipe.authorId) throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    if(req._id !== recipe.authorId.toString()) throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     const updateRecipe: IUpdateRecipe = {};
     if(file) {
       await this.imageService.updateOne(recipe.imageId, file.buffer, {
@@ -130,7 +130,7 @@ export class RecipeController {
       });
     }
     if(updateRecipeDto.typeId) {
-      await this.commonService.findOneRecipeTypeAPI('_id', updateRecipe.typeId);
+      await this.commonService.findOneRecipeTypeAPI('_id', updateRecipeDto.typeId);
       updateRecipe.typeId = updateRecipeDto.typeId;
     }
     if(updateRecipeDto.title) updateRecipe.title = updateRecipeDto.title;
