@@ -2,11 +2,11 @@ import {JwtModule} from '@nestjs/jwt';
 import {Module} from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {ConfigModule} from '@nestjs/config';
-import {Collections} from 'configs/collections';
 import {MongooseModule} from '@nestjs/mongoose';
 import {AuthController} from './auth.controller';
-import {CommonModule} from 'modules/common/common.module';
-import {UserSchema} from 'modules/user/schemas/user.schema';
+import {Collections} from '../../configs/collections';
+import {CommonModule} from '../../modules/common/common.module';
+import {UserSchema} from '../../modules/user/schemas/user.schema';
 
 @Module({
   imports: [

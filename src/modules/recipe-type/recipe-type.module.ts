@@ -1,13 +1,13 @@
 import {Module} from '@nestjs/common';
 import {JwtModule} from '@nestjs/jwt';
-import {Collections} from 'configs/collections';
 import {MongooseModule} from '@nestjs/mongoose';
-import {ImageModule} from 'modules/image/image.module';
+import {Collections} from '../../configs/collections';
 import {RecipeTypeService} from './recipe-type.service';
-import {RecipeModule} from 'modules/recipe/recipe.module';
-import {CommonModule} from 'modules/common/common.module';
+import {ImageModule} from '../../modules/image/image.module';
 import {RecipeTypeController} from './recipe-type.controller';
 import {RecipeTypeSchema} from './schemas/recipe-type.schema';
+import {RecipeModule} from '../../modules/recipe/recipe.module';
+import {CommonModule} from '../../modules/common/common.module';
 
 @Module({
   imports: [

@@ -1,12 +1,12 @@
 import {IFilters} from './types/filters';
 import {InjectModel} from '@nestjs/mongoose';
 import {Recipe} from './schemas/recipe.schema';
-import {Collections} from 'configs/collections';
-import {IPagintaion} from 'types/pagination.types';
+import {Collections} from '../../configs/collections';
 import mongoose, {Model, PipelineStage} from 'mongoose';
+import {IPagintaion} from '../../types/pagination.types';
 import {ICreateRecipe, IRecipe, IUpdateRecipe} from './types/recipe';
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
-import {RecipeErrorMessages, RecipeSuccessMessages} from 'configs/messages/recipe';
+import {RecipeErrorMessages, RecipeSuccessMessages} from '../../configs/messages/recipe';
 
 const aggregationPipeLine: PipelineStage[] = [
   {

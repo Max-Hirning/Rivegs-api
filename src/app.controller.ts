@@ -1,12 +1,12 @@
 import {Response} from 'express';
 import {JwtService} from '@nestjs/jwt';
-import {AppService} from 'app.service';
-import {ContactUsDto} from 'dto/contact-us.dto';
+import {AppService} from './app.service';
+import {ContactUsDto} from './dto/contact-us.dto';
 import {MailerService} from '@nestjs-modules/mailer';
-import {AuthErrorMessages} from 'configs/messages/auth';
-import {AuthGuard} from 'modules/auth/guards/auth.guard';
-import {ICustomRequest, IResponse} from 'types/app.types';
-import {CommonService} from 'modules/common/common.service';
+import {AuthErrorMessages} from './configs/messages/auth';
+import {AuthGuard} from './modules/auth/guards/auth.guard';
+import {ICustomRequest, IResponse} from './types/app.types';
+import {CommonService} from './modules/common/common.service';
 import {Body, Controller, Get, HttpException, HttpStatus, Post, Query, Request, Res, UseGuards} from '@nestjs/common';
 
 @Controller()

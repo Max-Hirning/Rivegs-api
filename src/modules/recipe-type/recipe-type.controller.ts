@@ -1,13 +1,13 @@
-import {IRecipe} from 'modules/recipe/types/recipe';
 import {RecipeTypeService} from './recipe-type.service';
-import {AuthGuard} from 'modules/auth/guards/auth.guard';
 import {FileInterceptor} from '@nestjs/platform-express';
-import {ImageService} from 'modules/image/image.service';
-import {RecipeService} from 'modules/recipe/recipe.service';
-import {CommonService} from 'modules/common/common.service';
+import {IRecipe} from '../../modules/recipe/types/recipe';
+import {AuthGuard} from '../../modules/auth/guards/auth.guard';
+import {ImageService} from '../../modules/image/image.service';
 import {ICustomRequest, IResponse} from '../../types/app.types';
 import {CreateRecipeTypeDto} from './dto/create-recipe-type.dto';
 import {UpdateRecipeTypeDto} from './dto/update-recipe-type.dto';
+import {RecipeService} from '../../modules/recipe/recipe.service';
+import {CommonService} from '../../modules/common/common.service';
 import {IRecipeTypeResponse, IUpdateRecipeType} from './types/recipe-type';
 import {RecipeTypeSuccessMessages} from '../../configs/messages/recipe-type';
 import {Controller, Get, Post, Body, Param, Delete, HttpStatus, Put, UseGuards, Request, HttpException, UploadedFile, UseInterceptors} from '@nestjs/common';

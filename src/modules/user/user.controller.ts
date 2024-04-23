@@ -2,19 +2,19 @@ import * as bcrypt from 'bcrypt';
 import {JwtService} from '@nestjs/jwt';
 import {UserService} from './user.service';
 import {IUpdateProfile, IUser} from './types/user';
-import {IRecipe} from 'modules/recipe/types/recipe';
 import {MailerService} from '@nestjs-modules/mailer';
-import {ImageService} from 'modules/image/image.service';
 import {FileInterceptor} from '@nestjs/platform-express';
-import {AuthGuard} from 'modules/auth/guards/auth.guard';
+import {IRecipe} from '../../modules/recipe/types/recipe';
 import {UpdateProfileDto} from './dto/update-profile.dto';
-import {CommonService} from 'modules/common/common.service';
 import {UpdateSecurityDto} from './dto/update-security.dto';
-import {RecipeService} from 'modules/recipe/recipe.service';
+import {ImageService} from '../../modules/image/image.service';
+import {AuthGuard} from '../../modules/auth/guards/auth.guard';
 import {UserSuccessMessages} from '../../configs/messages/user';
 import {ICustomRequest, IResponse} from '../../types/app.types';
+import {RecipeService} from '../../modules/recipe/recipe.service';
+import {CommonService} from '../../modules/common/common.service';
 import {UpdateSavedRecipesDto} from './dto/update-saved-recipes.dto';
-import {AuthErrorMessages, AuthSuccessMessages} from 'configs/messages/auth';
+import {AuthErrorMessages, AuthSuccessMessages} from '../../configs/messages/auth';
 import {Controller, Get, Body, Param, Delete, Put, HttpStatus, HttpException, UploadedFile, UseInterceptors, Request, UseGuards} from '@nestjs/common';
 
 @Controller('user')

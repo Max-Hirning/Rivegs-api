@@ -1,16 +1,16 @@
 import mongoose from 'mongoose';
 import {IFilters} from './types/filters';
 import {RecipeService} from './recipe.service';
-import {IPagintaion} from 'types/pagination.types';
 import {IRecipe, IUpdateRecipe} from './types/recipe';
 import {CreateRecipeDto} from './dto/create-recipe.dto';
 import {UpdateRecipeDto} from './dto/update-recipe.dto';
-import {ImageService} from 'modules/image/image.service';
-import {AuthGuard} from 'modules/auth/guards/auth.guard';
+import {IPagintaion} from '../../types/pagination.types';
 import {FileInterceptor} from '@nestjs/platform-express';
-import {CommonService} from 'modules/common/common.service';
+import {ImageService} from '../../modules/image/image.service';
+import {AuthGuard} from '../../modules/auth/guards/auth.guard';
 import {ICustomRequest, IResponse} from '../../types/app.types';
 import {UpdateRecipeRateDto} from './dto/update-recipe-rate.dto';
+import {CommonService} from '../../modules/common/common.service';
 import {RecipeSuccessMessages} from '../../configs/messages/recipe';
 import {Controller, Get, Post, Body, Param, Delete, Put, HttpStatus, UseGuards, Request, HttpException, UploadedFile, UseInterceptors, Query} from '@nestjs/common';
 

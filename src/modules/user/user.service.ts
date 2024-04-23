@@ -1,10 +1,10 @@
 import mongoose, {Model} from 'mongoose';
 import {User} from './schemas/user.schema';
 import {InjectModel} from '@nestjs/mongoose';
-import {Collections} from 'configs/collections';
+import {Collections} from '../../configs/collections';
 import {IUpdateProfile, IUpdateSecurity, IUser} from './types/user';
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
-import {UserErrorMessages, UserSuccessMessages} from 'configs/messages/user';
+import {UserErrorMessages, UserSuccessMessages} from '../../configs/messages/user';
 
 @Injectable()
 export class UserService {

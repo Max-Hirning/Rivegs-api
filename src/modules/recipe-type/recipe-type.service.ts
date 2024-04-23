@@ -1,10 +1,10 @@
 import {InjectModel} from '@nestjs/mongoose';
-import {Collections} from 'configs/collections';
+import {Collections} from '../../configs/collections';
 import {RecipeType} from './schemas/recipe-type.schema';
 import mongoose, {Model, PipelineStage} from 'mongoose';
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {ICreateRecipeType, IRecipeTypeResponse, IUpdateRecipeType} from './types/recipe-type';
-import {RecipeTypeErrorMessages, RecipeTypeSuccessMessages} from 'configs/messages/recipe-type';
+import {RecipeTypeErrorMessages, RecipeTypeSuccessMessages} from '../../configs/messages/recipe-type';
 
 const aggregationPipeLine: PipelineStage[] = [
   {
