@@ -70,3 +70,7 @@ Thank you for using the Rivegs API! We hope it helps you manage your recipes wit
 
 ## About the Author
 Rivegs API is developed and maintained by Max Hirning. For more projects and updates, visit the [GitHub repository](https://github.com/Max-Hirning).
+
+
+## Future updates
+* Following authors
