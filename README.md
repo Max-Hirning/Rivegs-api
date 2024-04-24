@@ -44,7 +44,7 @@ Clone the repository:
 
 The API server will start at `http://localhost:${PORT}`.
 
-## **[Postman](https://www.postman.com/maxitco/workspace/rivegs-api)**
+## **[Postman](https://www.postman.com/maxitco/workspace/max-s-api/collection/17033383-ee925bf2-2b09-49ff-a2bf-b7672c048fef?action=share&source=copy-link&creator=17033383&active-environment=0547b5cf-269c-4f3a-9b3e-683d0499ac0f)**
 
 ## Support and Contributions
 For support, questions, or feedback, please contact maxhirning25@gmail.com.
